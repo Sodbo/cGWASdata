@@ -1,20 +1,52 @@
-exact_cGWAS=function(CovM,all_varg,response,N,covariates=NULL,
-	cn_b="beta_SNP",cn_snp="SNP",cn_se="se_SNP",
-	output_threshold=1e-6,gut_snps=NULL,all_CR=1,
-	correction=TRUE,path_uGWAS=NULL){
+########### Functions for exact estimations of cGWAS from uGWAS
+########### Yakov Tsepilov, Sodbo Sharapov
+
+
+# The main function. It uses uGWAS results stored in .RData format. 
+# CovM - covariance matrix of response vairable and covariates
+# all_varg - a numeric vector with variances of studied SNPs
+# response - a character, name of response variable
+# N - sample size
+# covariates - a character vector with list of covariates
+# cn_* - column names
+# output_threshold - the threshold for p-value filter for storing of outputs
+# good_snps - the list of SNPs that should be used in anlisys (in case you want to filter them)
+# all_CR - call rate for each SNP
+# correction - should be GC correction applied?
+# path_uGWAS - path to uGWAS in .RData format
+
+exact_cGWAS <- function(
+	CovM,
+	all_varg,
+	response,
+	N,
+	covariates=NULL,
+	cn_b = "beta_SNP",
+	cn_snp = "SNP",
+	cn_se = "se_SNP",
+	output_threshold=1e-6,
+	good_snps = NULL,
+	all_CR = 1,
+	correction = TRUE,
+	path_uGWAS = NULL){
 	
 	#checking the data
+
 	cat("Load data...","\n")
-	Nprd=length(covariates)
+
+	Nprd <- length(covariates)
+
 	#eval(text=paste("snps=",response",[,cn_snp]",sep=""))
+
 	snps=names(all_varg)
+
 	resp_pred<-c(response,covariates)
 	
     if (is.null(path_uGWAS)){
-        #prd=resp_pred[1]
-        #for (prd in resp_pred){
-        #    load(paste(path_uGWAS,prd,".RData",sep=""))
-        #}
+        prd <- resp_pred[1]
+        for (prd in resp_pred){
+            load(paste(path_uGWAS,prd,".RData",sep=""))
+        }
 	} else {
         prd=resp_pred[1]
         for (prd in resp_pred){
