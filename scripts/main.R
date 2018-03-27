@@ -24,7 +24,6 @@ all_varg <- snp_info$varg_1785
 
 names(all_varg) <- snp_info$SNP
 
-
 exact_cGWAS(
 	CovM = cor_matrix,
 	all_varg = all_varg,
@@ -36,7 +35,8 @@ exact_cGWAS(
 	cn_se = "se",
 	output_threshold=1,
 	good_snps = NULL,
-	#all_CR = 1,
+	correction = TRUE,
+	all_CR = rep(1, length(all_varg)),
 	path_uGWAS = '../data/uGWAS_snps_from_paper'
 
 )
