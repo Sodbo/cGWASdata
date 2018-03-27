@@ -3,7 +3,7 @@
 #betas
 	
 .b=function(response,pred,S){
-	out=solve(S[pred,pred])%*%S[response,pred]
+	out <- solve(S[pred,pred])%*%S[response,pred]
 	return(out)
 }
 
