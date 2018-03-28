@@ -33,9 +33,9 @@ exact_cGWAS(
 	cn_b = "beta",
 	cn_snp = "SNP",
 	cn_se = "se",
-	output_threshold=1,
+	output_threshold = 1,
 	good_snps = NULL,
-	correction = TRUE,
+	#correction = TRUE,
 	all_CR = rep(1, length(all_varg)),
 	path_uGWAS = '../data/uGWAS_snps_from_paper'
 
