@@ -50,6 +50,11 @@ names(lambda) <- trait_names
 
 rm(trait_names)
 
+# Check whether folder for results of cGAS on BN exists
+
+if(!dir.exists('../results/BN'))
+	dir.create('../results/BN/')
+
 for(trait in names(list_resp_cov)){
 
 	response <- trait
@@ -82,7 +87,7 @@ for(trait in names(list_resp_cov)){
 		quote = FALSE,
 		row.names = FALSE,
 		sep = '\t',
-		file = paste0('../results/',trait,'.tsv')
+		file = paste0('../results/BN/',trait,'.txt')
 		)
 
 }
