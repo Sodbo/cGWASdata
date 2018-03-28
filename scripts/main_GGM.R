@@ -54,8 +54,6 @@ list_resp_cov <- apply(ggm_mat,1,function(x)
 	ifelse(sum(x!=0)>0, return(names(x)[x!=0]), return(NA))
 	)
 
-print(list_resp_cov['C10'])
-
 # Load lambdas GC
 
 lambda <- read.table('../data/GGM_cGWAS_gc_lambda.txt', 
@@ -81,7 +79,7 @@ for(trait in names(list_resp_cov)){
 
 	covariates <- list_resp_cov[[response]]
 
-	if(is.na(covariates))
+	if(is.na(covariates[1]))
 		covariates <- NULL
 	
 	res <- exact_cGWAS(

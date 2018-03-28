@@ -61,7 +61,7 @@ for(trait in names(list_resp_cov)){
 
 	covariates <- list_resp_cov[[response]]
 
-	if(is.na(covariates))
+	if(is.na(covariates[1]))
 		covariates <- NULL
 	
 	res <- exact_cGWAS(
