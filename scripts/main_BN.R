@@ -23,6 +23,7 @@ bn_mat <- read.table('../data/20171207_biochemical_distances.txt',
 	stringsAsFactors = FALSE
 	)
 
+# Intersect BN matrix with correlaton matrix
 bn_mat <- bn_mat[rownames(bn_mat) %in% rownames(cor_matrix),]
 
 bn_mat <- bn_mat[,colnames(bn_mat) %in% colnames(cor_matrix)]
@@ -35,6 +36,20 @@ list_resp_cov <- apply(bn_mat,1,function(x)
 	ifelse(sum(x==1)>0, return(names(x)[x==1]), return(NA))
 	)
 
+# Load lambdas GC
+
+lambda <- read.table('../data/BN_cGWAS_gc_lambda.txt', 
+	stringsAsFactors = FALSE,
+	head = TRUE)
+
+trait_names <- lambda$trait
+
+lambda <- lambda$gc_lambda
+
+names(lambda) <- trait_names
+
+rm(trait_names)
+
 for(trait in names(list_resp_cov)){
 
 	response <- trait
@@ -43,10 +58,6 @@ for(trait in names(list_resp_cov)){
 
 	if(is.na(covariates))
 		covariates <- NULL
-
-	print(trait)
-
-	print(covariates)
 	
 	res <- exact_cGWAS(
 		CovM = cor_matrix,
@@ -64,6 +75,8 @@ for(trait in names(list_resp_cov)){
 		path_uGWAS = '../data/uGWAS_snps_from_paper'
 
 	)
+
+	res$results$Pval_GC <- pchisq(res$results$chi2/lambda[trait], df = 1, lower.tail = FALSE)
 
 	write.table(data.frame(SNP = res$snps, res$results), 
 		quote = FALSE,
