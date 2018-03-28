@@ -44,15 +44,11 @@ exact_cGWAS <- function(
 
 		trait_file <- paste0(path_uGWAS,'/',trait, '.txt')
 
-		print(trait_file)
-
 		sum_stats[[length(sum_stats)+1]] <- read.table(trait_file, 
 			head = TRUE, 
 			stringsAsFactors = FALSE)
 
 		rm(trait)
-
-		print('DONE')
 
 	}
 
