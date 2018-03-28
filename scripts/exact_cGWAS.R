@@ -99,6 +99,8 @@ exact_cGWAS <- function(
 
 	all_varg <- all_varg[snps]
 
+	all_CR <- all_CR[snps]
+
 	for(trait in all_traits){
 
 		keep_snps <- match(sum_stats[[trait]][,cn_snp],snps, nomatch = FALSE)

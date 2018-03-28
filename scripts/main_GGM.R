@@ -8,7 +8,7 @@ source('../code/exact_cGWAS.R')
 cor_matrix <- read.table('../data/20171207_corr_matrix.txt')
 
 # Loading information about SNPs, where column 'var_1785' 
-# contains variance of the SNP
+# contains variance of the SNP and CR contains call rate
 
 snp_info <- data.table::fread('../data/30_SNP_information.txt',
 	data.table = FALSE)
@@ -16,6 +16,10 @@ snp_info <- data.table::fread('../data/30_SNP_information.txt',
 all_varg <- snp_info$varg_1785
 
 names(all_varg) <- snp_info$SNP
+
+all_CR <- snp_info$CR
+
+names(all_CR) <- snp_info$SNP
 
 # Load matrix with GGM partial correlations and their P-values
 
@@ -95,7 +99,7 @@ for(trait in names(list_resp_cov)){
 		output_threshold = 1,
 		good_snps = NULL,
 		#correction = TRUE,
-		all_CR = rep(1, length(all_varg)),
+		all_CR = all_CR,
 		path_uGWAS = '../data/uGWAS_snps_from_paper'
 
 	)
