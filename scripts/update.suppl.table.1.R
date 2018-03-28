@@ -38,6 +38,12 @@ for(i in 1:nrow(tab1)){
 
 }
 
-write.table(tab1[,c('bdGAS_b','bdGAS_se','bdGAS_p')], quote=FALSE,row.names=FALSE)
+write.table(tab1[,c('bdGAS_b','bdGAS_se','bdGAS_p')], 
+	quote = FALSE,
+	row.names = FALSE,
+	sep='\t')
 
-write.table(tab1[,c('cGAS_b','cGAS_se','cGAS_p')], quote=FALSE,row.names=FALSE)
+write.table(tab1[,c('cGAS_b','cGAS_se','cGAS_p')],
+	quote = FALSE,
+	row.names = FALSE,
+	sep='\t')
