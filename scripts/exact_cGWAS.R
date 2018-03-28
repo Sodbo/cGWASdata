@@ -162,11 +162,11 @@ exact_cGWAS <- function(
 		}
 		cat("Starting cGWAS...","\n")
 		
-		# pb <- txtProgressBar(style=3)
+		pb <- txtProgressBar(style=3)
 
 		for (i in 1:Nsnps){
 
-			# setTxtProgressBar(pb, value = i/Nsnps)
+			setTxtProgressBar(pb, value = i/Nsnps)
 
 			S["g","g"] <- varg <- all_varg[i]
 
@@ -192,9 +192,7 @@ exact_cGWAS <- function(
 
 		out <- as.data.frame(out)
 
-
-		
-		#close(pb)
+		close(pb)
 		
 		#out=as.data.frame(out)
 		#out=cbind(SNP=snps,out)
@@ -219,7 +217,7 @@ exact_cGWAS <- function(
 
 	} else{
 
-		output$status="Not corrected for GC lambda"
+		output$status <- "Not corrected for GC lambda"
 
 	}
 	
@@ -244,6 +242,5 @@ exact_cGWAS <- function(
 	cat("Finished. Enjoy=)","\n")
 	
 	return(output)
+	
 }
-
-
