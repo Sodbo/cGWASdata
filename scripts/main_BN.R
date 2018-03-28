@@ -1,3 +1,4 @@
+# Sodbo Sharapov
 
 # Loading functions
 source('../code/exact_cGWAS.R')
