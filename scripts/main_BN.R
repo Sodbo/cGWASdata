@@ -17,6 +17,10 @@ all_varg <- snp_info$varg_1785
 
 names(all_varg) <- snp_info$SNP
 
+all_CR <- snp_info$CR
+
+names(all_CR) <- snp_info$SNP
+
 # Load matrix with biochemical distances
 
 bn_mat <- read.table('../data/20171207_biochemical_distances.txt', 
@@ -77,7 +81,7 @@ for(trait in names(list_resp_cov)){
 		output_threshold = 1,
 		good_snps = NULL,
 		#correction = TRUE,
-		all_CR = rep(1, length(all_varg)),
+		all_CR = all_CR,
 		path_uGWAS = '../data/uGWAS_snps_from_paper'
 
 	)

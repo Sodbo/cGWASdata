@@ -31,4 +31,6 @@ print(tab2[,c('SNP','Metabolite','c_beta','c_se','c_z','c_p')])
 
 print('\n')
 
-write.table(tab2[,c('c_beta','c_se','c_z','c_p')], quote=FALSE,row.names=FALSE)
+write.table(tab2[,c('c_beta','c_se','c_z','c_p')], 
+	quote=FALSE,
+	row.names=FALSE)
