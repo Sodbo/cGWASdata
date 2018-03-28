@@ -44,11 +44,15 @@ exact_cGWAS <- function(
 
 		trait_file <- paste0(path_uGWAS,'/',trait, '.txt')
 
+		print(trait_file)
+
 		sum_stats[[length(sum_stats)+1]] <- read.table(trait_file, 
-			head=TRUE, 
-			stringsAsFactors=FALSE)
+			head = TRUE, 
+			stringsAsFactors = FALSE)
 
 		rm(trait)
+
+		print('DONE')
 
 	}
 
@@ -162,11 +166,11 @@ exact_cGWAS <- function(
 		}
 		cat("Starting cGWAS...","\n")
 		
-		pb <- txtProgressBar(style=3)
+		#pb <- txtProgressBar(style=3)
 
 		for (i in 1:Nsnps){
 
-			setTxtProgressBar(pb, value = i/Nsnps)
+			#setTxtProgressBar(pb, value = i/Nsnps)
 
 			S["g","g"] <- varg <- all_varg[i]
 
@@ -182,17 +186,13 @@ exact_cGWAS <- function(
 
             out[i,"se"] <-.seb(response=1, pred=2:(Nprd+1),S = S, N = N*all_CR[i])["g"]
 
-			# print(paste('########## ', i ,' ###################'))
-
 		}
 
 		out[,"chi2"] <- (out[,"b"]/out[,"se"])^2
 
-		print(out)
-
 		out <- as.data.frame(out)
 
-		close(pb)
+		#close(pb)
 		
 		#out=as.data.frame(out)
 		#out=cbind(SNP=snps,out)
@@ -242,5 +242,5 @@ exact_cGWAS <- function(
 	cat("Finished. Enjoy=)","\n")
 	
 	return(output)
-	
+
 }
