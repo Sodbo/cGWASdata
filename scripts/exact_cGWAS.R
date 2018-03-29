@@ -123,7 +123,10 @@ exact_cGWAS <- function(
 		out <- data.frame(
 			b = sum_stats[[1]][,cn_b], 
 			se = sum_stats[[1]][,cn_se],
-			chi2 = (sum_stats[[1]][,cn_b] / sum_stats[[1]][,cn_se])^2
+			chi2 = (sum_stats[[1]][,cn_b] / sum_stats[[1]][,cn_se])^2,
+			Pval = pchisq((sum_stats[[1]][,cn_b] / sum_stats[[1]][,cn_se])^2,
+				df=1,lower.tail=FALSE),
+			b_cov = NA
 			)
 		
 		rownames(out) <- snps
@@ -146,11 +149,13 @@ exact_cGWAS <- function(
 	
 		# calculation
 
-		out <- array(NA,c(Nsnps, 4))
+		out <- array(NA,c(Nsnps, 5))
 
-		colnames(out) <- c("b","se","chi2","Pval")
+		colnames(out) <- c("b","se","chi2","Pval", "b_cov")
 
 		rownames(out) <- snps
+
+		out <- as.data.frame(out)
 		
 		# beta matrix
 		betas <- array(NA, c(Nsnps, length(all_traits)))
@@ -180,22 +185,24 @@ exact_cGWAS <- function(
 
 			}
 
-			out[i,"b"] <-.b(response=1, pred=2:(Nprd+1),S=S)["g",]
+			beta_prd <- .b(response=1, pred=2:(Nprd+1),S=S)
 
-            out[i,"se"] <-.seb(response=1, pred=2:(Nprd+1),S = S, N = N*all_CR[i])["g"]
+			out$b[i] <- beta_prd["g",]
+
+            out$se[i] <-.seb(response=1, pred=2:(Nprd+1),S = S, N = N*all_CR[i])["g"]
+
+            out$b_cov[i] <- paste0(beta_prd[covariates,],collapse = ';')
+
+            rm(beta_prd)
 
 		}
 
-		out[,"chi2"] <- (out[,"b"]/out[,"se"])^2
+		out$chi2 <- (out$b / out$se)^2
 
-		out <- as.data.frame(out)
+		out$Pval <- pchisq(out$chi2, 1, lower.tail = FALSE)
 
 		#close(pb)
-		
-		#out=as.data.frame(out)
-		#out=cbind(SNP=snps,out)
-		#snps=snps[!is.na(out[,"chi2"])]
-		#out=out[!is.na(out[,"chi2"]),]	
+
 		cat("cGWAS was calculated for",dim(out)[1],"SNPs","\n")
 	}	
 	
@@ -203,7 +210,7 @@ exact_cGWAS <- function(
 
 	output <- list()
 	
-	output$gc_lambda <- median(out$chi2,na.rm=T) / qchisq(0.5, 1, lower.tail=F)
+	output$gc_lambda <- median(out$chi2, na.rm=T ) / qchisq(0.5, 1, lower.tail=F)
 	
 	cat("GC Lambda of all",dim(out)[1],"SNPs is",output$gc_lambda,"\n")
 	
@@ -211,15 +218,13 @@ exact_cGWAS <- function(
 		cat("Performing genomic control correction ...","\n")
 		
 		out$chi2 <- out$chi2 / output$gc_lambda
-		output$status="Corrected for GC lambda"
+		output$status="Chi2 and Pval GC Corrected for GC lambda"
 
 	} else{
 
 		output$status <- "Not corrected for GC lambda"
 
 	}
-	
-	out$Pval <- pchisq(out$chi2, 1, lower.tail = FALSE)
 		
 	output$response <- response
 
@@ -227,7 +232,7 @@ exact_cGWAS <- function(
 	
 	cat("Filtering results using threshold = ",output_threshold,"\n")
 
-	out <- out[out$Pval <=output_threshold ,]
+	out <- out[out$Pval <= output_threshold ,]
 	
 	cat(dim(out)[1],"SNPs with p-value <=",output_threshold,"\n")
 	
