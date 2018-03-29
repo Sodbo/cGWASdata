@@ -1,4 +1,4 @@
-N	Locus	SNP	Metabolite	Gene	cov
+N	Locus	SNP	Metabolite	Gene	Covariates
 1	1	rs211718	C8	ACADM	C10
 2	1	rs211718	C12	ACADM	C10;C12.DC;C14
 3	2	rs7705189	PC.ae.C42.5	SLC22A4	PC.ae.C40.5;PC.ae.C42.4;PC.ae.C44.5
