@@ -2,3 +2,6 @@ results
 code
 .DS_Store
 data/data_explained_var_new.RData
+*.Rhistory
+data/20161111_table_cGWAS_uGWAS_bdGWAS.txt
+data/20171205_table1.txt

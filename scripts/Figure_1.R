@@ -1,31 +1,31 @@
-#setwd("/Users/tsepilov/Yandex.Disk.localized/Work/Projects/multivarate project_2013_2015/data/")
-#load("/Users/tsepilov/Yandex.Disk.localized/Work/Projects/multivarate project_2013_2015/data/data_explained_var.RData")
+# Sodbo Sharapov, Yakov Tsepilov (c)
 
-setwd("/mnt/Disk_D/YD_ux/Work/Projects/multivarate project_2013_2015/data/")
-#load("//mnt/Disk_D/YD_ux/Work/Projects/multivarate project_2013_2015/data/data_explained_var.RData")
-load("/mnt/Disk_D/YD_ux/Work/Projects/multivarate project_2013_2015/data/data_explained_var_new.RData")
+if(!dir.exists('../results'))
+  dir.create('../results')
 
-xb=read.table("20161111_table_cGWAS_uGWAS_bdGWAS.txt",header = T,stringsAsFactors = F,sep="\t",fill = T)
-xb_snps=read.table("20171205_table1.txt",header = T,stringsAsFactors = F,sep="\t",fill = T)
+# pdf('../results/figure_1.pdf')
 
-xb_1=paste(xb[,1],xb[,2],sep="_")
-xb_2=paste(xb_snps[,3],xb_snps[,4],sep="_")
+load("../data/data_explained_var_new.RData")
 
-xb=xb[xb_1%in%xb_2,]
-xb_1=paste(xb[,1],xb[,2],sep="_")
-rownames(xb)=xb_1
-xb=xb[xb_2,]
+xb <- read.table("../data/20161111_table_cGWAS_uGWAS_bdGWAS.txt",header = T,stringsAsFactors = F,sep="\t",fill = T)
+
+xb_snps <- read.table("../data/20171205_table1.txt",header = T,stringsAsFactors = F,sep="\t",fill = T)
+
+xb_1 <- paste(xb[,1],xb[,2],sep="_")
+xb_2 <- paste(xb_snps[,3],xb_snps[,4],sep="_")
+
+xb <- xb[xb_1%in%xb_2,]
+xb_1 <- paste(xb[,1],xb[,2],sep="_")
+rownames(xb) <- xb_1
+xb <- xb[xb_2,]
 
 nrow(xb)
 length(table(xb[,"Locus"]))
 
-
-i=1
-
 xv=NULL
 yv1=yv2=yv3=yv4=yv5=NULL
 
-for (i in (1:dim(xb)[1])){
+for (i in 1:nrow(xb)){
   snp=xb[i,"SNP"]
   trait=xb[i,"trait"]
   cvrts=unlist(strsplit(xb[i,"bd_cvrts"],";"))
@@ -33,7 +33,6 @@ for (i in (1:dim(xb)[1])){
   sdta=cbind(snp=dta[,snp],phedata[,c(cvrts,trait)])
   
   N=dim(dta)[1]
-  
   
   flau=paste(trait,"~snp")
   if (length(cvrts)>0){
@@ -147,3 +146,6 @@ for (i in 1:length(cvz)){
   ymax=max(yv1[cvz[i]],yv3[cvz[i]],yv4[cvz[i]],0)
   points(x=rep(xv[cvz[i]],2),y=c(ymin,ymax),type="l",col="red",lwd=2)
 }
+
+# dev.off()
+
