@@ -1,32 +1,43 @@
 # Sodbo Sharapov, Yakov Tsepilov (c)
 
+# Create directory for storing a figure
+
 if(!dir.exists('../results'))
   dir.create('../results')
 
 # pdf('../results/figure_1.pdf')
 
-load("../data/data_explained_var_new.RData")
+# Load table with list of SNPs and metabolites for which we want to create figure 1
 
-xb_snps <- read.table("../data/BN_snps_traits_covariates.txt",header = T,stringsAsFactors = F,sep="\t",fill = T)
+assoc_2_plot <- read.table("../data/BN_snps_traits_covariates.txt",
+                      header = TRUE,
+                      stringsAsFactors = FALSE,
+                      sep="\t",
+                      fill = T)
+
+# Load SNP infor with var(g)
+
+snp_info <- read.table('../data/30_SNP_information.txt',
+                       head = TRUE,
+                       stringsAsFactors = FALSE)
+
+var_snp <- snp_info$varg_1785
+
+names(var_snp) <- snp_info$SNP
+
+rm(snp_info)
 
 xv=NULL
 
 yv1=yv2=yv3=yv4=yv5=NULL
 
-for (i in 1:nrow(xb_snps)){
+for (i in 1:nrow(assoc_2_plot)){
   
   # Assign trait and SNP into variabels
-  snp <- xb_snps$SNP[i]
+  snp <- assoc_2_plot$SNP[i]
   
-  trait <- xb_snps$Metabolite[i]
+  trait <- assoc_2_plot$Metabolite[i]
   
-  # Assign list of covariates
-  cvrts <- unlist(strsplit(xb_snps$Covariates[i],";"))
-  
-  dta[is.na(dta[,snp]),snp]=mean(dta[,snp],na.rm=T)
-  
-  sdta=cbind(snp=dta[,snp],phedata[,c(cvrts,trait)])
-
   # Load file with uGAS statistics
   ugas_file <- paste0('../data/uGWAS_snps_from_paper/',trait,'.txt')
   
@@ -35,11 +46,14 @@ for (i in 1:nrow(xb_snps)){
                            stringsAsFactors = FALSE)
   
   # Get SE and Chi2 from uGAS stats
-  se_u <- ugas_stats$se[ugas_stats$SNP == snp]
   
-  chi2_u <- (ugas_stats$Z[ugas_stats$SNP == snp])^2
+  beta_snp_u <- ugas_stats$b[ugas_stats$SNP == snp]
   
-  #rm(ugas_file, ugas_stats)
+  se_snp_u <- ugas_stats$se[ugas_stats$SNP == snp]
+  
+  chi2_snp_u <- (ugas_stats$Z[ugas_stats$SNP == snp])^2
+  
+  rm(ugas_file, ugas_stats)
   
   # Load file with biochemical network cGAS statistics
   bngas_file <- paste0('../results/BN/',trait,'.txt')
@@ -50,47 +64,77 @@ for (i in 1:nrow(xb_snps)){
   
   # Get SE and Chi2 from biochemical network cGAS statistics
   
-  bcg <- bngas_stats$b[bngas_stats$SNP == snp]
+  se_snp_c <- bngas_stats$se[bngas_stats$SNP == snp]
+  
+  chi2_snp_c <- bngas_stats$chi2[bngas_stats$SNP == snp]
+  
+  
+  # Get betas for SNP and covariates
+  
+  beta_snp_c <- bngas_stats$b[bngas_stats$SNP == snp]
   
   if(is.numeric(bngas_stats$b_cov[bngas_stats$SNP == snp])){
     
-    bcc <- bngas_stats$b_cov[bngas_stats$SNP == snp]
+    beta_cov_c <- bngas_stats$b_cov[bngas_stats$SNP == snp]
   
     } else{
       
-      bcc <- unlist(strsplit(bngas_stats$b_cov[bngas_stats$SNP == snp],";"))
+      beta_cov_c <- unlist(strsplit(bngas_stats$b_cov[bngas_stats$SNP == snp],";"))
     
-      bcc <- as.numeric(bcc)
+      beta_cov_c <- as.numeric(beta_cov_c)
       
   }
   
-  se_c <- bngas_stats$se[bngas_stats$SNP == snp]
+  # Assign list of covariates
   
-  chi2_c <- bngas_stats$chi2[bngas_stats$SNP == snp]
+  covariates <- unlist(strsplit(bngas_stats$Covariates[i],";"))
   
-  #rm(bngas_file, bngas_stats)
-
-  ryg=cor(sdta[,trait],sdta[,"snp"])#=bug*sqrt(varg)
-  rcg=cor(sdta[,cvrts],sdta[,"snp"])
-  ryc=cor(sdta[,trait],sdta[,cvrts])
+  rm(bngas_file, bngas_stats)
   
-  f1 <- log10( (se_u / se_c ) ^ 2 )
-  f2=log10((1-(bcc%*%rcg)/ryg)^2)
-  f2_=log10((1-(ryc%*%rcg)/ryg)^2)
+  beta_cov_u <- NULL
   
-  xv <- c(xv,log10(chi2_c / chi2_u))
+  for(Covariate in covariates) {
+    
+    cov_file <- paste0('../data/uGWAS_snps_from_paper/',Covariate,'.txt')
+    
+    cov_stats <- read.table(cov_file,
+                            head = TRUE,
+                            stringsAsFactors = FALSE)
+    
+    beta_cov_u <- c(beta_cov_u, cov_stats$beta[cov_stats$SNP == snp])
+    
+  }
   
-  yv1=c(yv1,(f1+f2))
-  yv2=c(yv2,(f1+f2_))
-  yv3=c(yv3,(f1))
-  yv4=c(yv4,(f2))
-  yv5=c(yv5,(f2_))
+  cor_trait_snp  <- beta_snp_u * sqrt(var_snp[snp])
+  
+  cor_cov_snp <- beta_cov_u * sqrt(var_snp[snp])
+  
+  rm(cov_file, Covariate, cov_stats)
+  
+  # Load table with correlation matrix for phenotypes
+  
+  cor_matrix <- read.table('../data/20171207_corr_matrix.txt')
+  
+  cor_trait_cov <- as.numeric(cor_matrix[trait, covariates])
+  
+  rm(cor_matrix)
+  
+  f1 <- log10( (se_snp_u / se_snp_c )^2 )
+  f2 <- log10( ( 1 - ( beta_cov_c %*% cor_cov_snp ) / cor_trait_snp )^2 )
+  f2_ <- log10( ( 1 - ( cor_trait_cov %*% cor_cov_snp ) / cor_trait_snp )^2 )
+  
+  xv <- c(xv, log10 (chi2_snp_c / chi2_snp_u) )
+  
+  yv1 <- c(yv1, ( f1 + f2 ) )
+  yv2 <- c(yv2, ( f1 + f2_) )
+  yv3 <- c(yv3, ( f1) )
+  yv4 <- c(yv4, ( f2) )
+  yv5 <- c(yv5, ( f2_) )
   
   
 }
 
-
-out=cbind(xv,yv1,yv2,yv3,yv4,yv5,gene=xb_snps$Gene,col=colors()[200])
+out=cbind(xv,yv1,yv2,yv3,yv4,yv5,gene=assoc_2_plot$Gene,col=colors()[200])
 out[out[,"gene"]=="ACADM","col"]=colors()[575]
 out[out[,"gene"]=="SLC22A4","col"]=colors()[119]
 out[out[,"gene"]=="PLEKHH1","col"]=colors()[132]
