@@ -24,12 +24,9 @@ for (i in 1:nrow(xb_snps)){
   cvrts <- unlist(strsplit(xb_snps$Covariates[i],";"))
   
   dta[is.na(dta[,snp]),snp]=mean(dta[,snp],na.rm=T)
+  
   sdta=cbind(snp=dta[,snp],phedata[,c(cvrts,trait)])
 
-  flac=paste(trait,"~snp+",paste(cvrts,collapse="+"))
-
-  func=lm(flac,data=as.data.frame(sdta))
-  
   # Load file with uGAS statistics
   ugas_file <- paste0('../data/uGWAS_snps_from_paper/',trait,'.txt')
   
@@ -42,7 +39,7 @@ for (i in 1:nrow(xb_snps)){
   
   chi2_u <- (ugas_stats$Z[ugas_stats$SNP == snp])^2
   
-  rm(ugas_file, ugas_stats)
+  #rm(ugas_file, ugas_stats)
   
   # Load file with biochemical network cGAS statistics
   bngas_file <- paste0('../results/BN/',trait,'.txt')
@@ -52,16 +49,28 @@ for (i in 1:nrow(xb_snps)){
                            stringsAsFactors = FALSE)
   
   # Get SE and Chi2 from biochemical network cGAS statistics
+  
+  bcg <- bngas_stats$b[bngas_stats$SNP == snp]
+  
+  if(is.numeric(bngas_stats$b_cov[bngas_stats$SNP == snp])){
+    
+    bcc <- bngas_stats$b_cov[bngas_stats$SNP == snp]
+  
+    } else{
+      
+      bcc <- unlist(strsplit(bngas_stats$b_cov[bngas_stats$SNP == snp],";"))
+    
+      bcc <- as.numeric(bcc)
+      
+  }
+  
   se_c <- bngas_stats$se[bngas_stats$SNP == snp]
   
   chi2_c <- bngas_stats$chi2[bngas_stats$SNP == snp]
   
-  rm(bngas_file, bngas_stats)
+  #rm(bngas_file, bngas_stats)
 
-  bcg=summary(func)$coef["snp","Estimate"]
-  bcc=summary(func)$coef[cvrts,"Estimate"]
-  
-  ryg=cor(sdta[,trait],sdta[,"snp"])=bug*sqrt(varg)
+  ryg=cor(sdta[,trait],sdta[,"snp"])#=bug*sqrt(varg)
   rcg=cor(sdta[,cvrts],sdta[,"snp"])
   ryc=cor(sdta[,trait],sdta[,cvrts])
   
