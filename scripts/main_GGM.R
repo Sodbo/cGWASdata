@@ -107,11 +107,13 @@ for(trait in names(list_resp_cov)){
 
 	)
 
-	res$results$Pval_GC <- pchisq(res$results$chi2/lambda[trait], 
-		df = 1, 
-		lower.tail = FALSE)
+	out <- data.frame(
+		SNP = res$snps, 
+		res$results, 
+		Covariates = ifelse(is.null(covariates), NA, paste0(covariates,collapse = ';'))
+		)
 
-	write.table(data.frame(SNP = res$snps, res$results), 
+	write.table(out, 
 		quote = FALSE,
 		row.names = FALSE,
 		sep = '\t',
