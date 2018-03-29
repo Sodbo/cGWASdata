@@ -7,59 +7,70 @@ if(!dir.exists('../results'))
 
 load("../data/data_explained_var_new.RData")
 
-xb <- read.table("../data/20161111_table_cGWAS_uGWAS_bdGWAS.txt",header = T,stringsAsFactors = F,sep="\t",fill = T)
-
-xb_snps <- read.table("../data/20171205_table1.txt",header = T,stringsAsFactors = F,sep="\t",fill = T)
-
-xb_1 <- paste(xb[,1],xb[,2],sep="_")
-xb_2 <- paste(xb_snps[,3],xb_snps[,4],sep="_")
-
-xb <- xb[xb_1%in%xb_2,]
-xb_1 <- paste(xb[,1],xb[,2],sep="_")
-rownames(xb) <- xb_1
-xb <- xb[xb_2,]
-
-nrow(xb)
-length(table(xb[,"Locus"]))
+xb_snps <- read.table("../data/BN_snps_traits_covariates.txt",header = T,stringsAsFactors = F,sep="\t",fill = T)
 
 xv=NULL
+
 yv1=yv2=yv3=yv4=yv5=NULL
 
-for (i in 1:nrow(xb)){
-  snp=xb[i,"SNP"]
-  trait=xb[i,"trait"]
-  cvrts=unlist(strsplit(xb[i,"bd_cvrts"],";"))
+for (i in 1:nrow(xb_snps)){
+  
+  # Assign trait and SNP into variabels
+  snp <- xb_snps$SNP[i]
+  
+  trait <- xb_snps$Metabolite[i]
+  
+  # Assign list of covariates
+  cvrts <- unlist(strsplit(xb_snps$Covariates[i],";"))
+  
   dta[is.na(dta[,snp]),snp]=mean(dta[,snp],na.rm=T)
   sdta=cbind(snp=dta[,snp],phedata[,c(cvrts,trait)])
-  
-  N=dim(dta)[1]
-  
-  flau=paste(trait,"~snp")
-  if (length(cvrts)>0){
-    flac=paste(trait,"~snp+",paste(cvrts,collapse="+"))
-  } else flac=flau
-  
-  funu=lm(flau,data=as.data.frame(sdta))
+
+  flac=paste(trait,"~snp+",paste(cvrts,collapse="+"))
+
   func=lm(flac,data=as.data.frame(sdta))
   
-  x2u=summary(funu)$coef["snp","t value"]^2
-  x2c=summary(func)$coef["snp","t value"]^2
+  # Load file with uGAS statistics
+  ugas_file <- paste0('../data/uGWAS_snps_from_paper/',trait,'.txt')
   
-  seu=summary(funu)$coef["snp","Std. Error"]
-  sec=summary(func)$coef["snp","Std. Error"]
+  ugas_stats <- read.table(ugas_file,
+                           head = TRUE,
+                           stringsAsFactors = FALSE)
   
+  # Get SE and Chi2 from uGAS stats
+  se_u <- ugas_stats$se[ugas_stats$SNP == snp]
+  
+  chi2_u <- (ugas_stats$Z[ugas_stats$SNP == snp])^2
+  
+  rm(ugas_file, ugas_stats)
+  
+  # Load file with biochemical network cGAS statistics
+  bngas_file <- paste0('../results/BN/',trait,'.txt')
+  
+  bngas_stats <- read.table(bngas_file,
+                           head = TRUE,
+                           stringsAsFactors = FALSE)
+  
+  # Get SE and Chi2 from biochemical network cGAS statistics
+  se_c <- bngas_stats$se[bngas_stats$SNP == snp]
+  
+  chi2_c <- bngas_stats$chi2[bngas_stats$SNP == snp]
+  
+  rm(bngas_file, bngas_stats)
+
   bcg=summary(func)$coef["snp","Estimate"]
   bcc=summary(func)$coef[cvrts,"Estimate"]
   
-  ryg=cor(sdta[,trait],sdta[,"snp"])
+  ryg=cor(sdta[,trait],sdta[,"snp"])=bug*sqrt(varg)
   rcg=cor(sdta[,cvrts],sdta[,"snp"])
   ryc=cor(sdta[,trait],sdta[,cvrts])
   
-  f1=log10((seu/sec)^2)
+  f1 <- log10( (se_u / se_c ) ^ 2 )
   f2=log10((1-(bcc%*%rcg)/ryg)^2)
   f2_=log10((1-(ryc%*%rcg)/ryg)^2)
   
-  xv=c(xv,log10(x2c/x2u))
+  xv <- c(xv,log10(chi2_c / chi2_u))
+  
   yv1=c(yv1,(f1+f2))
   yv2=c(yv2,(f1+f2_))
   yv3=c(yv3,(f1))
@@ -70,7 +81,7 @@ for (i in 1:nrow(xb)){
 }
 
 
-out=cbind(xv,yv1,yv2,yv3,yv4,yv5,gene=xb[,"Gene"],col=colors()[200])
+out=cbind(xv,yv1,yv2,yv3,yv4,yv5,gene=xb_snps$Gene,col=colors()[200])
 out[out[,"gene"]=="ACADM","col"]=colors()[575]
 out[out[,"gene"]=="SLC22A4","col"]=colors()[119]
 out[out[,"gene"]=="PLEKHH1","col"]=colors()[132]
@@ -121,7 +132,7 @@ cvz=c(2,13,3,14)
 #points(x=out[cvz,"xv"],y=rep(2.6,length(cvz)),col="darkgreen",pch="*",cex=4)
 
 ll=sapply(out[cvz,"gene"],FUN=function(x){eval(parse(text=paste("expression(italic(",x,"))",sep="")))})
-t#ext(x=xv[cvz],y=apply(cbind(yv3[cvz],yv1[cvz]),1,max),labels=ll,cex=1,offset = 0.5,pos=3)  
+text(x=xv[cvz],y=apply(cbind(yv3[cvz],yv1[cvz]),1,max),labels=ll,cex=1,offset = 0.5,pos=3)  
 
 i=1
 for (i in 1:length(cvz)){
@@ -137,7 +148,7 @@ cvz=c(10,12)
 
 
 ll=sapply(out[cvz,"gene"],FUN=function(x){eval(parse(text=paste("expression(italic(",x,"))",sep="")))})
-#text(x=xv[cvz],y=apply(cbind(yv3[cvz],yv1[cvz]),1,max),labels=ll,cex=1,offset = 0.5,pos=3)  
+text(x=xv[cvz],y=apply(cbind(yv3[cvz],yv1[cvz]),1,max),labels=ll,cex=1,offset = 0.5,pos=3)  
      
 i=1
 for (i in 1:length(cvz)){
