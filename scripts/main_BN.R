@@ -57,8 +57,11 @@ rm(trait_names)
 
 # Check whether folder for results of cGAS on BN exists
 
-if(!dir.exists('../results/BN'))
-	dir.create('../results/BN/')
+if(!dir.exists('../results'))
+	dir.create('../results')
+
+if(!dir.exists('../results/GGM'))
+	dir.create('../results/GGM/')
 
 for(trait in names(list_resp_cov)){
 
