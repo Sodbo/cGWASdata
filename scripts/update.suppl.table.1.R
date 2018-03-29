@@ -44,7 +44,7 @@ for(i in 1:nrow(tab1)){
 
 	tab1$uGAS_se[i] <- metab_u$se[metab_u$SNP == snp]
 
-	tab1$uGAS_p[i] <- pchisq((metab_u$Z[metab_u$SNP == snp])^2/lambda_ugas$gc_lambda[lambda_ugas$trait==trait],
+	tab1$uGAS_p[i] <- pchisq((metab_u$Z[metab_u$SNP == snp])^2/lambda_ugas$gc_lambda[lambda_ugas$trait == trait],
 		df = 1,
 		lower.tail = FALSE
 		)
