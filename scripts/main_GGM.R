@@ -17,7 +17,7 @@ all_varg <- snp_info$varg_1785
 
 names(all_varg) <- snp_info$SNP
 
-all_CR <- snp_info$CR
+all_CR <- rep(1, length(all_varg))
 
 names(all_CR) <- snp_info$SNP
 
@@ -104,7 +104,9 @@ for(trait in names(list_resp_cov)){
 
 	)
 
-	res$results$Pval_GC <- pchisq(res$results$chi2/lambda[trait], df = 1, lower.tail = FALSE)
+	res$results$Pval_GC <- pchisq(res$results$chi2/lambda[trait], 
+		df = 1, 
+		lower.tail = FALSE)
 
 	write.table(data.frame(SNP = res$snps, res$results), 
 		quote = FALSE,
