@@ -60,8 +60,8 @@ rm(trait_names)
 if(!dir.exists('../results'))
 	dir.create('../results')
 
-if(!dir.exists('../results/GGM'))
-	dir.create('../results/GGM/')
+if(!dir.exists('../results/BN'))
+	dir.create('../results/BN/')
 
 for(trait in names(list_resp_cov)){
 
