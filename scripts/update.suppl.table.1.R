@@ -2,7 +2,7 @@
 
 # Load table 
 tab1 <- xlsx::read.xlsx(
-	file='/home/sodbo/Dropbox/Yakov/20180326/Supplementary Table 1.SSh.xlsx',
+	file='~/Dropbox/Yakov/20180326/Supplementary Table 1.SSh.xlsx',
 	sheetIndex = 2, 
 	startRow = 3, 
 	endRow = 25
