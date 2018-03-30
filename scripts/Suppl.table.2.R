@@ -2,16 +2,27 @@
 
 # Load table 
 
-tab2 <- xlsx::read.xlsx(
-	file='~/Dropbox/Yakov/20180326/Supplementary Table 2.SSh.xlsx',
-	sheetIndex=2, 
-	startRow=3, 
-	endRow=33
+tab2 <- read.table(
+	file='data/SNPs_for_suppl_tab2.txt',
+  stringsAsFactors = FALSE,
+	head = TRUE
 	)
 
-lambda_ugas <- read.table('../data/uGWAS_gc_lambda.txt', 
+lambda_ugas <- read.table('data/uGWAS_gc_lambda.txt', 
 	head = TRUE, 
 	stringsAsFactors = FALSE)
+
+# Load lambdas GC for GGM GWAS
+
+lambda_ggm <- read.table('data/GGM_cGWAS_gc_lambda.txt', 
+                         stringsAsFactors = FALSE,
+                         head = TRUE)
+
+trait_names <- lambda_ggm$trait
+
+lambda_ggm <- lambda_ggm$gc_lambda
+
+names(lambda_ggm) <- trait_names
 
 for(i in 1:nrow(tab2)){
 
@@ -19,9 +30,9 @@ for(i in 1:nrow(tab2)){
 
 	snp <- tab2$SNP[i]
 
-	metab_file_u <- paste0('../data/uGWAS_snps_from_paper/',trait,'.txt')
+	metab_file_u <- paste0('data/uGWAS_snps_from_paper/',trait,'.txt')
 
-	metab_file_ggm <- paste0('../results/GGM/',trait,'.txt')
+	metab_file_ggm <- paste0('results/GGM/',trait,'.txt')
 
 	metab_u <- read.table(
 		file = metab_file_u,
@@ -51,19 +62,16 @@ for(i in 1:nrow(tab2)){
 
 	tab2$c_z[i] <- tab2$c_beta[i] / tab2$c_se[i]
 
-	tab2$c_p[i] <- metab_cgas$Pval_GC[metab_cgas$SNP == snp]
+	tab2$c_p[i] <- (tab2$c_z[i])^2 / lambda_ggm[trait]
+	
+	tab2$c_p[i] <- pchisq(tab2$c_p[i], df = 1, lower.tail = FALSE)
 
 }
 
-write.table(tab2[,c('u_beta','u_se','u_Z','u_p')], 
-	quote=FALSE,
-	row.names=FALSE,
-	dec=',',
-	sep='\t')
-
-
-write.table(tab2[,c('c_beta','c_se','c_z','c_p')], 
-	quote=FALSE,
-	row.names=FALSE,
-	dec=',',
-	sep='\t')
+write.table(tab2, 
+	quote = FALSE,
+	row.names = FALSE,
+#	dec = ',',
+	sep = '\t',
+	file = 'results/Suppl_table_2.csv'
+	)
