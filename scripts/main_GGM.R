@@ -10,8 +10,9 @@ cor_matrix <- read.table('data/20171207_corr_matrix.txt')
 # Loading information about SNPs, where column 'var_1785' 
 # contains variance of the SNP and CR contains call rate
 
-snp_info <- data.table::fread('data/30_SNP_information.txt',
-	data.table = FALSE)
+snp_info <- read.table('data/30_SNP_information.txt',
+	stringsAsFactors = FALSE,
+	head= TRUE)
 
 all_varg <- snp_info$varg_1785
 
