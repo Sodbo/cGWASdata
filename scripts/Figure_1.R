@@ -27,6 +27,10 @@ names(var_snp) <- snp_info$SNP
 
 rm(snp_info)
 
+# Load table with correlation matrix for phenotypes
+
+cor_matrix <- read.table('../data/20171207_corr_matrix.txt')
+
 xv=NULL
 
 yv1=yv2=yv3=yv4=yv5=NULL
@@ -111,13 +115,8 @@ for (i in 1:nrow(assoc_2_plot)){
   
   rm(cov_file, Covariate, cov_stats)
   
-  # Load table with correlation matrix for phenotypes
-  
-  cor_matrix <- read.table('../data/20171207_corr_matrix.txt')
-  
+  # Get correlation between trait and covariates
   cor_trait_cov <- as.numeric(cor_matrix[trait, covariates])
-  
-  rm(cor_matrix)
   
   f1 <- log10( (se_snp_u / se_snp_c )^2 )
   f2 <- log10( ( 1 - ( beta_cov_c %*% cor_cov_snp ) / cor_trait_snp )^2 )
