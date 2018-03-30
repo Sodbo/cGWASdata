@@ -76,25 +76,21 @@ for(i in 1:nrow(tab1)){
 		lower.tail = FALSE
 		)
 
-
 	tab1$bdGAS_b[i] <- metab_bn$b[metab_bn$SNP == snp]
 
 	tab1$bdGAS_se[i] <- metab_bn$se[metab_bn$SNP == snp]
 
-	tab1$bdGAS_p[i] <- metab_bn$Pval[metab_bn$SNP == snp]
-
-	tab1$bdGAS_p[i] <- metab_bn$chi2[i] / lambda_bn
-
-	tab1$bdGAS_p[i] <- pchisq(tab1$bdGAS_p[i], df =1 , lower.tail = FALSE)
-
-
+	tab1$bdGAS_p[i] <- metab_bn$chi2[metab_bn$SNP == snp] / lambda_bn[trait]
+	
+	tab1$bdGAS_p[i] <- pchisq(tab1$bdGAS_p[i], df=1 , lower.tail = FALSE)
+	
 	tab1$cGAS_b[i] <- metab_ggm$b[metab_ggm$SNP == snp]
 
 	tab1$cGAS_se[i] <- metab_ggm$se[metab_ggm$SNP == snp]
 
-	tab1$cGAS_p[i] <- metab_ggm$chi2[i] / lambda_ggm
+	tab1$cGAS_p[i] <- metab_ggm$chi2[metab_ggm$SNP == snp] / lambda_ggm[trait]
 
-	tab1$cGAS_p[i] <- pchisq(tab1$cGAS_p[i], df =1 , lower.tail = FALSE)
+	tab1$cGAS_p[i] <- pchisq(tab1$cGAS_p[i], df=1 , lower.tail = FALSE)
 
 
 }
@@ -102,6 +98,7 @@ for(i in 1:nrow(tab1)){
 write.table(tab1, 
 	quote = FALSE,
 	row.names = FALSE,
-	sep='\t',
-	dec=','
+	sep = '\t',
+#	dec = ',',
+	file = 'results/Suppl_table_1.csv'
 )
