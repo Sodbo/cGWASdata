@@ -1,16 +1,16 @@
 # Sodbo Sharapov
 
 # Loading functions
-source('../code/exact_cGWAS.R')
+source('code/exact_cGWAS.R')
 
 # Loading correlation matrix for 151 metabolites
 
-cor_matrix <- read.table('../data/20171207_corr_matrix.txt')
+cor_matrix <- read.table('data/20171207_corr_matrix.txt')
 
 # Loading information about SNPs, where column 'var_1785' 
 # contains variance of the SNP
 
-snp_info <- data.table::fread('../data/30_SNP_information.txt',
+snp_info <- data.table::fread('data/30_SNP_information.txt',
 	data.table = FALSE)
 
 all_varg <- snp_info$varg_1785
@@ -23,7 +23,7 @@ names(all_CR) <- snp_info$SNP
 
 # Load matrix with biochemical distances
 
-bn_mat <- read.table('../data/20171207_biochemical_distances.txt', 
+bn_mat <- read.table('data/20171207_biochemical_distances.txt', 
 	head = TRUE, 
 	stringsAsFactors = FALSE
 	)
@@ -43,7 +43,7 @@ list_resp_cov <- apply(bn_mat,1,function(x)
 
 # Load lambdas GC
 
-lambda <- read.table('../data/BN_cGWAS_gc_lambda.txt', 
+lambda <- read.table('data/BN_cGWAS_gc_lambda.txt', 
 	stringsAsFactors = FALSE,
 	head = TRUE)
 
@@ -57,11 +57,11 @@ rm(trait_names)
 
 # Check whether folder for results of cGAS on BN exists
 
-if(!dir.exists('../results'))
-	dir.create('../results')
+if(!dir.exists('results'))
+	dir.create('results')
 
-if(!dir.exists('../results/BN'))
-	dir.create('../results/BN/')
+if(!dir.exists('results/BN'))
+	dir.create('results/BN/')
 
 for(trait in names(list_resp_cov)){
 
@@ -85,7 +85,7 @@ for(trait in names(list_resp_cov)){
 		good_snps = NULL,
 		#correction = TRUE,
 		all_CR = all_CR,
-		path_uGWAS = '../data/uGWAS_snps_from_paper'
+		path_uGWAS = 'data/uGWAS_snps_from_paper'
 
 	)
 
@@ -103,7 +103,7 @@ for(trait in names(list_resp_cov)){
 		quote = FALSE,
 		row.names = FALSE,
 		sep = '\t',
-		file = paste0('../results/BN/',trait,'.txt')
+		file = paste0('results/BN/',trait,'.txt')
 		)
 
 }

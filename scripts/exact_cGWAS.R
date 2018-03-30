@@ -137,7 +137,7 @@ exact_cGWAS <- function(
 	
 		# Creating S matrix
 
-		source('../code/utilities.R')
+		source('code/utilities.R')
 
 		Nprd <- length(all_traits)
 

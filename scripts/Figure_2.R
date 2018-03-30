@@ -2,16 +2,16 @@
 
 # Create directory for storing a figure
 
-if(!dir.exists('../results'))
-  dir.create('../results')
+if(!dir.exists('results'))
+  dir.create('results')
 
-png('../results/figure_2.png',
+png('results/figure_2.png',
     height = 720,
     width = 1080)
 
 # Load table with list of SNPs and metabolites for which we want to create figure 1
 
-assoc_2_plot <- read.table("../data/BN_snps_traits_covariates.txt",
+assoc_2_plot <- read.table("data/BN_snps_traits_covariates.txt",
                            header = TRUE,
                            stringsAsFactors = FALSE,
                            sep="\t",
@@ -19,7 +19,7 @@ assoc_2_plot <- read.table("../data/BN_snps_traits_covariates.txt",
 
 # Load SNP infor with var(g)
 
-snp_info <- read.table('../data/30_SNP_information.txt',
+snp_info <- read.table('data/30_SNP_information.txt',
                        head = TRUE,
                        stringsAsFactors = FALSE)
 
@@ -31,7 +31,7 @@ rm(snp_info)
 
 # Load table with correlation matrix for phenotypes
 
-cor_matrix <- read.table('../data/20171207_corr_matrix.txt')
+cor_matrix <- read.table('data/20171207_corr_matrix.txt')
 
 # Create M_1 matrix for FADS1
 
@@ -59,7 +59,7 @@ create_M <- function(assoc_2_plot, snp, gene){
     
     # Fill partial correlations
     
-    bn_gas_file <- paste0('../results/BN/', trait, '.txt')
+    bn_gas_file <- paste0('results/BN/', trait, '.txt')
     
     bn_gas <- read.table(file = bn_gas_file,
                          head = TRUE,
@@ -87,7 +87,7 @@ create_M <- function(assoc_2_plot, snp, gene){
     
     # Fill correlations between SNP and trait
     
-    u_gas_file <- paste0('../data/uGWAS_snps_from_paper/', trait, '.txt')
+    u_gas_file <- paste0('data/uGWAS_snps_from_paper/', trait, '.txt')
     
     u_gas <- read.table(file = u_gas_file,
                          head = TRUE,
@@ -103,7 +103,7 @@ create_M <- function(assoc_2_plot, snp, gene){
     
     for(covariate in covariates){
       
-      u_gas_file <- paste0('../data/uGWAS_snps_from_paper/', covariate, '.txt')
+      u_gas_file <- paste0('data/uGWAS_snps_from_paper/', covariate, '.txt')
       
       u_gas <- read.table(file = u_gas_file,
                           head = TRUE,
