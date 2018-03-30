@@ -5,7 +5,7 @@
 if(!dir.exists('../results'))
   dir.create('../results')
 
-# pdf('../results/figure_1.pdf')
+pdf('../results/figure_1.pdf')
 
 # Load table with list of SNPs and metabolites for which we want to create figure 1
 
@@ -211,5 +211,5 @@ for (i in 1:length(cvz)){
   points(x=rep(xv[cvz[i]],2),y=c(ymin,ymax),type="l",col="red",lwd=2)
 }
 
-# dev.off()
+dev.off()
 
