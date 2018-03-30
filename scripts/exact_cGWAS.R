@@ -2,7 +2,7 @@
 ########### Yakov Tsepilov, Sodbo Sharapov
 
 
-# The main function. It uses uGWAS results stored in .RData format. 
+# The main function. It uses uGWAS results stored in txt format. 
 # CovM - covariance matrix of response vairable and covariates
 # all_varg - a named numeric vector with variances of studied SNPs
 # response - a character, name of response variable
@@ -13,7 +13,7 @@
 # good_snps - the list of SNPs that should be used in anlisys (in case you want to filter them)
 # all_CR - call rate for each SNP
 # correction - should be GC correction applied?
-# path_uGWAS - path to uGWAS in .RData format
+# path_uGWAS - path to uGWAS in txt format
 
 exact_cGWAS <- function(
 	CovM,
