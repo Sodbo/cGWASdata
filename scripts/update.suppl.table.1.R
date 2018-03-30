@@ -2,16 +2,43 @@
 
 # Load table 
 
-tab1 <- xlsx::read.xlsx(
-	file='~/Dropbox/Yakov/20180326/Supplementary Table 1.SSh.xlsx',
-	sheetIndex = 2, 
-	startRow = 3, 
-	endRow = 25
+tab1 <- read.table(
+	file='data/SNPs_for_suppl_tab1.txt',
+	head = TRUE,
+	stringsAsFactors = FALSE
 	)
 
-lambda_ugas <- read.table('../data/uGWAS_gc_lambda.txt', 
+# Load lambdas GC for uGWAS
+lambda_ugas <- read.table('data/uGWAS_gc_lambda.txt', 
 	head = TRUE, 
 	stringsAsFactors = FALSE)
+
+
+# Load lambdas GC for GGM GWAS
+
+lambda_ggm <- read.table('data/GGM_cGWAS_gc_lambda.txt', 
+	stringsAsFactors = FALSE,
+	head = TRUE)
+
+trait_names <- lambda_ggm$trait
+
+lambda_ggm <- lambda_ggm$gc_lambda
+
+names(lambda_ggm) <- trait_names
+
+# Load lambdas GC for BN GWAS
+
+lambda_bn <- read.table('data/BN_cGWAS_gc_lambda.txt', 
+	stringsAsFactors = FALSE,
+	head = TRUE)
+
+trait_names <- lambda_bn$trait
+
+lambda_bn <- lambda_bn$gc_lambda
+
+names(lambda_bn) <- trait_names
+
+rm(trait_names)
 
 for(i in 1:nrow(tab1)){
 
@@ -19,11 +46,11 @@ for(i in 1:nrow(tab1)){
 
 	snp <- tab1$SNP[i]
 
-	metab_file_u <- paste0('../data/uGWAS_snps_from_paper/',trait,'.txt')
+	metab_file_u <- paste0('data/uGWAS_snps_from_paper/',trait,'.txt')
 
-	metab_file_bn <- paste0('../results/BN/',trait,'.txt')
+	metab_file_bn <- paste0('results/BN/',trait,'.txt')
 
-	metab_file_ggm <- paste0('../results/GGM/',trait,'.txt')
+	metab_file_ggm <- paste0('results/GGM/',trait,'.txt')
 
 	metab_u <- read.table(
 		file = metab_file_u,
@@ -54,34 +81,27 @@ for(i in 1:nrow(tab1)){
 
 	tab1$bdGAS_se[i] <- metab_bn$se[metab_bn$SNP == snp]
 
-	tab1$bdGAS_p[i] <- metab_bn$Pval_GC[metab_bn$SNP == snp]
+	tab1$bdGAS_p[i] <- metab_bn$Pval[metab_bn$SNP == snp]
+
+	tab1$bdGAS_p[i] <- metab_bn$chi2[i] / lambda_bn
+
+	tab1$bdGAS_p[i] <- pchisq(tab1$bdGAS_p[i], df =1 , lower.tail = FALSE)
 
 
 	tab1$cGAS_b[i] <- metab_ggm$b[metab_ggm$SNP == snp]
 
 	tab1$cGAS_se[i] <- metab_ggm$se[metab_ggm$SNP == snp]
 
-	tab1$cGAS_p[i] <- metab_ggm$Pval_GC[metab_ggm$SNP == snp]
+	tab1$cGAS_p[i] <- metab_ggm$chi2[i] / lambda_ggm
+
+	tab1$cGAS_p[i] <- pchisq(tab1$cGAS_p[i], df =1 , lower.tail = FALSE)
+
 
 }
 
-write.table(tab1[,c('uGAS_b','uGAS_se','uGAS_p')], 
+write.table(tab1, 
 	quote = FALSE,
 	row.names = FALSE,
 	sep='\t',
 	dec=','
-	)
-
-write.table(tab1[,c('bdGAS_b','bdGAS_se','bdGAS_p')], 
-	quote = FALSE,
-	row.names = FALSE,
-	sep='\t',
-	dec=','
-	)
-
-write.table(tab1[,c('cGAS_b','cGAS_se','cGAS_p')],
-	quote = FALSE,
-	row.names = FALSE,
-	sep='\t',
-	dec=','
-	)
+)
