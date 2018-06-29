@@ -108,6 +108,10 @@ for(trait in names(list_resp_cov)){
 
 	)
 
+	res$results$Pval_GC <- pchisq(res$results$chi2/lambda[trait], 
+		df = 1, 
+		lower.tail = FALSE)
+
 	out <- data.frame(
 		SNP = res$snps, 
 		res$results, 
