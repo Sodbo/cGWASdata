@@ -1,6 +1,10 @@
-# Sodbo Sharapov
+# Scritp for reproducing Supplementary Table 1A
 
-# Load table 
+# Load table with biochemical distances between 153 metabolites
+# and restrict it to a subset of 105 metabolites for which at least the
+# one-reaction-step immediate biochemical neighbors are known
+
+getwd()
 
 tab1 <- read.table(
 	file='data/SNPs_for_suppl_tab1.txt',
@@ -97,12 +101,10 @@ for(i in 1:nrow(tab1)){
 
 }
 
-#tab1 <- tab1[tab1$proper_info>0.7 & tab1$bdGAS_p<5e-8/151,]
-
 write.table(tab1, 
 	quote = FALSE,
 	row.names = FALSE,
 	sep = '\t',
 #	dec = ',',
-	file = 'results/Suppl_table_1.csv'
+	file = 'results/Suppl_table_1A.csv'
 )
