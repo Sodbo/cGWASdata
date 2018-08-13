@@ -83,6 +83,8 @@ for(i in 1:nrow(tab1)){
 	tab1$bdGAS_p[i] <- metab_bn$chi2[metab_bn$SNP == snp] / lambda_bn[trait]
 	
 	tab1$bdGAS_p[i] <- pchisq(tab1$bdGAS_p[i], df=1 , lower.tail = FALSE)
+
+	tab1$bd_noise_comp <- log10((tab1$uGAS_se / tab1$bdGAS_se)^2)
 	
 	tab1$cGAS_b[i] <- metab_ggm$b[metab_ggm$SNP == snp]
 
@@ -94,6 +96,8 @@ for(i in 1:nrow(tab1)){
 
 
 }
+
+#tab1 <- tab1[tab1$proper_info>0.7 & tab1$bdGAS_p<5e-8/151,]
 
 write.table(tab1, 
 	quote = FALSE,
