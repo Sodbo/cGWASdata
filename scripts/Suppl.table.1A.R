@@ -1,7 +1,5 @@
 # Scritp for reproducing Supplementary Table 1A
 
-Pval_thr <- 5e-8/105
-
 # Load table with biochemical distances between 153 metabolites
 # and restrict it to a subset of 105 metabolites for which at least the
 # one-reaction-step immediate biochemical neighbors are known
@@ -18,15 +16,16 @@ bn_dist[bn_dist != 1] <- 0
 
 traits <- names(which(apply(bn_dist,2,sum)>0))
 
+rm(bn_dist)
+
+# Dots in the names !!!!!!!!!!!!!!
 traits_exists <- sub('.txt','',list.files('data/uGWAS'))
 
 traits <- intersect(traits,traits_exists)
 
 rm(traits_exists)
 
-snp_info <- data.table::fread('zcat data/SNP_information.txt.zip', data.table = FALSE)
-
-snp_info$maf <- pmin(1 - snp_info$freq, snp_info$freq)
+snp_info <- data.table::fread('zcat data/SNP_information.txt.gz', data.table = FALSE)
 
 minfreq=0.1
 minP22=0
@@ -34,27 +33,68 @@ minR2=0.3
 hw=1e-6
 CR=0.95
 #
-gut_snps <- snp_info$SNP[which(snp_info[,"maf"]*as.numeric(snp_info[,"R2_impute_info"])>=minfreq &
-                                      as.numeric(snp_info[,"R2_impute_info"])>=minR2 &
-                                      snp_info[,"hw"]>=hw)]
+gut_snps <- snp_info$SNP[which(snp_info[,"maf"]*as.numeric(snp_info[,"proper_info"])>=minfreq &
+                                      as.numeric(snp_info[,"proper_info"])>=minR2 &
+                                      snp_info[,"hw"]>=hw & 
+                                      snp_info[,"CR_1785"]>=CR)]
+
+rm(minfreq,minP22,minR2,hw,CR)
 
 source('scripts/clumping_functions.R')
 
-locus_table <- function_for_making_full_table_without_gcv('data/uGWAS/', 
+# Create locus table for uGAS
+
+locus_table_ugas <- function_for_making_full_table_without_gcv('data/uGWAS/',
+                                                          'SNP',
+                                                          'beta',
+                                                          'se',
+                                                          'P',
                                                           traits, 
                                                           snp_info, 
-                                                          thr=5e-8, 
+                                                          thr=5e-8/151, 
                                                           delta = 5e5)
 
-locus_table_2 <- function_for_shlop_24_10_2013(
-  locus_table,
+locus_table_ugas <- function_for_shlop_24_10_2013(
+  locus_table_ugas,
   p_value="P-value",
   pos="Position",
   snp="SNP",
   delta=5e5,
   chr="Chromosome")
 
-locus_table_2[locus_table_2$`P-value`< 5e-8/151,]
+# Create locus table for bnGAS
+
+locus_table_bngas <- function_for_making_full_table_without_gcv('results/BN/', 
+                                                               'SNP',
+                                                               'b',
+                                                               'se',
+                                                               'Pval_GC',
+                                                               traits, 
+                                                               snp_info, 
+                                                               thr=5e-8/151, 
+                                                               delta = 5e5)
+
+locus_table_bngas <- function_for_shlop_24_10_2013(
+  locus_table_bngas,
+  p_value="P-value",
+  pos="Position",
+  snp="SNP",
+  delta=5e5,
+  chr="Chromosome")
+
+tab_1A <- rbind(locus_table_ugas, locus_table_bngas)
+
+tab_1A <- tab_1A[order(tab_1A$Chromosome, tab_1A$Position),]
+
+tab_1A$code <- paste(tab_1A$SNP,tab_1A$trait,sep = '_')
+
+tab_1A <- tab_1A[!duplicated(tab_1A$code),]
+
+tab_1A <- tab_1A[,c('SNP','trait','Chromosome','Position')]
+
+# Remove locus on chromosome 2, See supplementary Note 2 for the fetails
+
+tab_1A <- tab_1A[-c(3:4),]
 
 	"metab_file_bn <- paste0('results/BN/',trait,'.txt')
 	metab_bn <- read.table(
