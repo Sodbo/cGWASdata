@@ -96,43 +96,150 @@ tab_1A <- tab_1A[,c('SNP','trait','Chromosome','Position')]
 
 tab_1A <- tab_1A[-c(3:4),]
 
-	"metab_file_bn <- paste0('results/BN/',trait,'.txt')
-	metab_bn <- read.table(
-		file = metab_file_bn,
-		head = TRUE,
-		stringsAsFactors = FALSE
-		)
+tab_1A$A1 <- NA
+tab_1A$A2 <- NA
+tab_1A$freq <- NA
+tab_1A$proper_info <- NA
 
-	metab_bn <- metab_bn[metab_bn$Pval < Pval_thr,]
+tab_1A$uGAS_b <- NA
+tab_1A$uGAS_se <- NA
+tab_1A$uGAS_p <- NA
 
-	locus_tab_bn <- rbind(locus_tab_bn,metab_bn) "
+tab_1A$bnGAS_b <- NA
+tab_1A$bnGAS_se <- NA
+tab_1A$bnGAS_p <- NA
 
-	"tab1$uGAS_b[i] <- metab_u$beta[metab_u$SNP == snp]
+tab_1A$bnGAS_noise_comp	<- NA
+tab_1A$bnGAS_pleiotropic_comp <- NA
 
-	tab1$uGAS_se[i] <- metab_u$se[metab_u$SNP == snp]
+tab_1A$cGAS_b <- NA
+tab_1A$cGAS_se <- NA
+tab_1A$cGAS_p <- NA
 
-	tab1$uGAS_p[i] <- pchisq((metab_u$Z[metab_u$SNP == snp])^2/lambda_ugas$gc_lambda[lambda_ugas$trait == trait],
-		df = 1,
-		lower.tail = FALSE
-		)
+tab_1A$cGAS_noise_comp	<- NA
+tab_1A$cGAS_pleiotropic_comp <- NA
 
-	tab1$bdGAS_b[i] <- metab_bn$b[metab_bn$SNP == snp]
+# Load lambdas GC for uGWAS
+lambda_ugas <- read.table(
+	'data/uGWAS_gc_lambda.txt', 
+	head = TRUE, 
+	stringsAsFactors = FALSE,
+	row.names = 1
+	)
 
-	tab1$bdGAS_se[i] <- metab_bn$se[metab_bn$SNP == snp]
+lambda_ugas <- lambda_ugas[traits,]
 
-	tab1$bdGAS_p[i] <- metab_bn$chi2[metab_bn$SNP == snp] / lambda_bn[trait]
-	
-	tab1$bdGAS_p[i] <- pchisq(tab1$bdGAS_p[i], df=1 , lower.tail = FALSE)
+names(lambda_ugas) <- traits
 
-	tab1$bd_noise_comp <- log10((tab1$uGAS_se / tab1$bdGAS_se)^2)
-	
-	tab1$cGAS_b[i] <- metab_ggm$b[metab_ggm$SNP == snp]
 
-	tab1$cGAS_se[i] <- metab_ggm$se[metab_ggm$SNP == snp]
+# Load lambdas GC for GGM GWAS
 
-	tab1$cGAS_p[i] <- metab_ggm$chi2[metab_ggm$SNP == snp] / lambda_ggm[trait]
+lambda_ggm <- read.table(
+	'data/GGM_cGWAS_gc_lambda.txt', 
+	stringsAsFactors = FALSE,
+	head = TRUE,
+	row.names = 1
+	)
 
-	tab1$cGAS_p[i] <- pchisq(tab1$cGAS_p[i], df=1 , lower.tail = FALSE)"
+lambda_ggm <- lambda_ggm[traits,]
+
+names(lambda_ggm) <- traits
+
+# Load lambdas GC for BN GWAS
+
+lambda_bn <- read.table(
+	'data/BN_cGWAS_gc_lambda.txt', 
+	stringsAsFactors = FALSE,
+	head = TRUE,
+	row.names = 1
+	)
+
+lambda_bn <- lambda_bn[traits,]
+
+names(lambda_bn) <- traits
+
+for(index in 1:nrow(tab_1A)){
+  
+  snp <- tab_1A$SNP[index] 
+    
+  trait <- tab_1A$trait[index]
+  
+  tab_1A$A1[index] <- snp_info$A1[snp_info$SNP==snp]
+  
+  tab_1A$A2[index] <- snp_info$A2[snp_info$SNP==snp]
+  
+  tab_1A$freq[index] <- snp_info$freq[snp_info$SNP==snp]
+  
+  tab_1A$proper_info[index] <- snp_info$proper_info[snp_info$SNP==snp]
+  
+  metab_file_u <- paste0('data/uGWAS_snps_from_paper/',trait,'.txt')
+  
+  metab_u <- read.table(
+    file = metab_file_u,
+    head = TRUE,
+    stringsAsFactors = FALSE
+  )
+  
+  tab_1A$uGAS_b[index] <- metab_u$b[metab_u$SNP == snp]
+  
+  tab_1A$uGAS_se[index] <- metab_u$se[metab_u$SNP == snp]
+  
+  tab_1A$uGAS_p[index] <- pchisq((metab_u$Z[metab_u$SNP == snp])^2/lambda_ugas[trait],
+                           df = 1,
+                           lower.tail = FALSE
+                          )
+  
+  metab_file_bn <- paste0('results/BN/',trait,'.txt')
+  
+  metab_bn <- read.table(
+    file = metab_file_bn,
+    head = TRUE,
+    stringsAsFactors = FALSE
+  )
+  
+  tab_1A$bnGAS_b[index] <- metab_bn$b[metab_bn$SNP == snp]
+  
+  tab_1A$bnGAS_se[index] <- metab_bn$se[metab_bn$SNP == snp]
+  
+  tab_1A$bnGAS_p[index] <- metab_bn$chi2[metab_bn$SNP == snp] / lambda_bn[trait]
+  
+  tab_1A$bnGAS_p[index] <- pchisq(tab_1A$bnGAS_p[index], df=1 , lower.tail = FALSE)
+  
+  tab_1A$bnGAS_noise_comp[index]  <- log10((tab_1A$uGAS_se[index]  / tab_1A$bnGAS_se[index] )^2)
+  
+  tab_1A$bnGAS_pleiotropic_comp[index]  <- log10(metab_bn$chi2[metab_bn$SNP == snp] / lambda_bn[trait] 
+                                                 / ((metab_u$Z[metab_u$SNP == snp])^2/lambda_ugas[trait])
+                                                 ) -
+                                            tab_1A$bnGAS_noise_comp[index] 
+  
+  metab_file_ggm <- paste0('results/GGM/',trait,'.txt')
+  
+  metab_ggm <- read.table(
+    file = metab_file_ggm,
+    head = TRUE,
+    stringsAsFactors = FALSE
+  )
+  
+  tab_1A$cGAS_b[index] <- metab_ggm$b[metab_ggm$SNP == snp]
+  
+  tab_1A$cGAS_se[index] <- metab_ggm$se[metab_ggm$SNP == snp]
+  
+  tab_1A$cGAS_p[index] <- metab_ggm$chi2[metab_ggm$SNP == snp] / lambda_ggm[trait]
+  
+  tab_1A$cGAS_p[index] <- pchisq(tab_1A$cGAS_p[index], df=1 , lower.tail = FALSE)
+  
+  tab_1A$cGAS_noise_comp[index]  <- log10((tab_1A$uGAS_se[index]  / tab_1A$cGAS_se[index] )^2)
+  
+  tab_1A$cGAS_pleiotropic_comp[index]  <- log10(metab_ggm$chi2[metab_ggm$SNP == snp] / lambda_ggm[trait] 
+                                                 / ((metab_u$Z[metab_u$SNP == snp])^2/lambda_ugas[trait])
+  ) -
+    tab_1A$cGAS_noise_comp[index] 
+  
+  
+}
+
+tab_1A[,c('bnGAS_noise_comp','bnGAS_pleiotropic_comp','cGAS_noise_comp','cGAS_pleiotropic_comp')]
+
 
 "write.table(tab1, 
 	quote = FALSE,
