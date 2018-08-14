@@ -1,15 +1,14 @@
-function_for_making_full_table_without_gcv <- function(path_sumstats, traits, snp_info, thr = 5e-8, delta = 2.5e5){
+function_for_making_full_table_without_gcv <- function(path_sumstats, snp_col, beta_col, se_col, Pval_col, traits, snp_info, thr = 5e-8, delta = 2.5e5){
 		pheindex = 1
 		locus_table = as.data.frame(NULL)
 		j = 0
 		for (trait in traits){
-		 # print(trait)
+		  #print(trait)
 			file_name = paste0(path_sumstats,trait,".txt")
 			Zx <- data.table::fread(file_name, data.table=FALSE)
-			Zx$Z <- Zx$Z^2
-			#Pval=pchisq(Zx[,"Chi2"],1,low=F)
-			#Zx=cbind(Zx,Pval)
-			colnames(Zx)=c("SNP","beta_SNP","se_SNP","Chi2","P-value")
+			Zx <- Zx[,c(snp_col, beta_col, se_col, Pval_col)]
+			colnames(Zx)=c("SNP","beta_SNP","se_SNP","P-value")
+			
 			Zx=Zx[Zx[,"P-value"]<=thr,]
 
 			kostil=FALSE
