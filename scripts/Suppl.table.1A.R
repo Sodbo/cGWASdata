@@ -337,12 +337,46 @@ for(index in 1:nrow(tab_1A)){
   
   tab_1A$c_cvrts[index] <- snp_ggm_p[ncol(snp_ggm_p)]
   
+  tab_1A$Noise_component_diffrence[index] <- tab_1A$cGAS_noise_comp[index] - tab_1A$bnGAS_noise_comp[index]
+  
+  tab_1A$uChi2[index] <- qchisq(tab_1A$minup_GC[index], df=1, lower.tail=FALSE)
+  
+  tab_1A$bdChi2[index] <- qchisq(tab_1A$minbdp_GC[index], df=1, lower.tail=FALSE)
+  
+  tab_1A$cChi2[index] <- qchisq(tab_1A$mincp_GC[index], df=1, lower.tail=FALSE)
+  
 }
 
-write.table(tab_1A, 
-  quote = FALSE,
-  # row.names = FALSE,
+tab_1A$locus <- 1
+
+for(index in 2:nrow(tab_1A)){
+  
+   ifelse(tab_1A$Chromosome[index-1]==tab_1A$Chromosome[index] & abs(tab_1A$Position[index-1] - tab_1A$Position[index])<5e5, tab_1A$locus[index] <- tab_1A$locus[index-1], tab_1A$locus[index] <- tab_1A$locus[index-1]+1)
+}
+
+for(locus in unique(tab_1A$locus)) {
+  
+  if(sum(tab_1A$locus==locus)==2){
+  
+    tab_1A[tab_1A$locus==locus,c('uChi2','bdChi2','cChi2')][1,] <- pmax(tab_1A[tab_1A$locus==locus,c('uChi2','bdChi2','cChi2')][1,],tab_1A[tab_1A$locus==locus,c('uChi2','bdChi2','cChi2')][2,])
+    
+    tab_1A[tab_1A$locus==locus,c('uChi2','bdChi2','cChi2')][2,] <- NA
+    
+  }
+  
+  tab_1A[tab_1A$locus==locus,c('Ratio_bdChi2_uChi2')][1] <- tab_1A[tab_1A$locus==locus,c('bdChi2')][1] / tab_1A[tab_1A$locus==locus,c('uChi2')][1]
+  
+  tab_1A[tab_1A$locus==locus,c('Ratio_GGMChi2_uChi2')][1] <- tab_1A[tab_1A$locus==locus,c('cChi2')][1] / tab_1A[tab_1A$locus==locus,c('uChi2')][1]
+
+}
+
+data.table::fwrite(tab_1A,
   sep = '\t',
-# dec = ',',
-  file = 'results/Suppl_table_1A.csv'
+  file = 'results/Suppl_table_1A.tsv'
 )
+
+# The average ratio of the maximum test statistic between BN-cGAS and uGAS
+print(mean(tab_1A$Ratio_bdChi2_uChi2,na.rm = TRUE))
+
+# A paired-sample Wilcoxon test
+print(wilcox.test(tab_1A$uChi2-tab_1A$bdChi2)$p.value)
