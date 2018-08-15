@@ -122,6 +122,22 @@ tab_1A$cGAS_p_GC <- NA
 tab_1A$cGAS_noise_comp  <- NA
 tab_1A$cGAS_pleiotropic_comp <- NA
 
+tab_1A$minup_GC  <- NA
+tab_1A$minup_t  <- NA
+tab_1A$minbdp_GC  <- NA
+tab_1A$minbdp_t  <- NA
+tab_1A$mincp_GC  <- NA
+tab_1A$mincp_t  <- NA
+tab_1A$Noise_component_diffrence <- NA
+tab_1A$uChi2 <- NA
+tab_1A$bdChi2 <- NA
+tab_1A$cChi2 <- NA
+tab_1A$Ratio_bdChi2_uChi2 <- NA	
+tab_1A$Ratio_GGMChi2_uChi2	<- NA
+tab_1A$bd_cvrts <- NA
+tab_1A$c_cvrts <- NA
+
+
 # Load lambdas GC for uGWAS
 lambda_ugas <- read.table(
   'data/uGWAS_gc_lambda.txt', 
@@ -241,17 +257,35 @@ for(index in 1:nrow(tab_1A)){
   tab_1A$cGAS_pleiotropic_comp[index]  <- log10(metab_ggm$chi2[metab_ggm$SNP == snp] 
                                                  / ((metab_u$Z[metab_u$SNP == snp])^2)
   ) -
-    tab_1A$cGAS_noise_comp[index] 
+    tab_1A$cGAS_noise_comp[index]
   
+  snp_u_p <- system(paste0('grep -w ', snp, ' data/uGWAS_snps_from_paper/*'),intern = TRUE)
+  
+  snp_u_p <- data.frame(matrix(unlist(sapply(snp_u_p,strsplit,split='\t')),byrow=TRUE,nrow=length(snp_u_p)), stringsAsFactors = FALSE)
+  
+  colnames(snp_u_p) <- c('trait','b','se','Z','P')
+  
+  snp_u_p$P <- as.numeric(snp_u_p$P)
+  
+  snp_u_p$Z <- as.numeric(snp_u_p$Z)
+  
+  snp_u_p$trait <- sub('data/uGWAS_snps_from_paper/','', snp_u_p$trait) 
+  
+  snp_u_p$trait <- sub(paste0('.txt:',snp),'', snp_u_p$trait)
+  
+  snp_u_p <- snp_u_p[snp_u_p$trait %in% traits,]
+  
+  snp_u_p <- snp_u_p[which.min(snp_u_p$P),,drop=FALSE]
+  
+  tab_1A$minup_GC[index] <- pchisq(snp_u_p$Z^2/lambda_ugas[trait],df=1,lower.tail = FALSE)
+    
+  tab_1A$minup_t[index] <- snp_u_p$trait 
   
 }
 
-tab_1A[,c('bnGAS_noise_comp','bnGAS_pleiotropic_comp','cGAS_noise_comp','cGAS_pleiotropic_comp')]
-
-
 write.table(tab_1A, 
   quote = FALSE,
-  row.names = FALSE,
+  # row.names = FALSE,
   sep = '\t',
 # dec = ',',
   file = 'results/Suppl_table_1A.csv'
