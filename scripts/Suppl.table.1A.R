@@ -104,10 +104,12 @@ tab_1A$proper_info <- NA
 tab_1A$uGAS_b <- NA
 tab_1A$uGAS_se <- NA
 tab_1A$uGAS_p <- NA
+tab_1A$uGAS_p_GC <- NA
 
 tab_1A$bnGAS_b <- NA
 tab_1A$bnGAS_se <- NA
 tab_1A$bnGAS_p <- NA
+tab_1A$bnGAS_p_GC <- NA
 
 tab_1A$bnGAS_noise_comp <- NA
 tab_1A$bnGAS_pleiotropic_comp <- NA
@@ -115,6 +117,7 @@ tab_1A$bnGAS_pleiotropic_comp <- NA
 tab_1A$cGAS_b <- NA
 tab_1A$cGAS_se <- NA
 tab_1A$cGAS_p <- NA
+tab_1A$cGAS_p_GC <- NA
 
 tab_1A$cGAS_noise_comp  <- NA
 tab_1A$cGAS_pleiotropic_comp <- NA
@@ -184,7 +187,12 @@ for(index in 1:nrow(tab_1A)){
   
   tab_1A$uGAS_se[index] <- metab_u$se[metab_u$SNP == snp]
   
-  tab_1A$uGAS_p[index] <- pchisq((metab_u$Z[metab_u$SNP == snp])^2/lambda_ugas[trait],
+  tab_1A$uGAS_p[index] <- pchisq((metab_u$Z[metab_u$SNP == snp])^2,
+                                    df = 1,
+                                    lower.tail = FALSE
+  )
+  
+  tab_1A$uGAS_p_GC[index] <- pchisq((metab_u$Z[metab_u$SNP == snp])^2/lambda_ugas[trait],
                            df = 1,
                            lower.tail = FALSE
                           )
@@ -201,14 +209,14 @@ for(index in 1:nrow(tab_1A)){
   
   tab_1A$bnGAS_se[index] <- metab_bn$se[metab_bn$SNP == snp]
   
-  tab_1A$bnGAS_p[index] <- metab_bn$chi2[metab_bn$SNP == snp] / lambda_bn[trait]
+  tab_1A$bnGAS_p[index] <- metab_bn$Pval[metab_bn$SNP == snp]
   
-  tab_1A$bnGAS_p[index] <- pchisq(tab_1A$bnGAS_p[index], df=1 , lower.tail = FALSE)
+  tab_1A$bnGAS_p_GC[index] <- metab_bn$Pval_GC[metab_bn$SNP == snp]
   
   tab_1A$bnGAS_noise_comp[index]  <- log10((tab_1A$uGAS_se[index]  / tab_1A$bnGAS_se[index] )^2)
   
-  tab_1A$bnGAS_pleiotropic_comp[index]  <- log10(metab_bn$chi2[metab_bn$SNP == snp] / lambda_bn[trait] 
-                                                 / ((metab_u$Z[metab_u$SNP == snp])^2/lambda_ugas[trait])
+  tab_1A$bnGAS_pleiotropic_comp[index]  <- log10(metab_bn$chi2[metab_bn$SNP == snp]
+                                                 / ((metab_u$Z[metab_u$SNP == snp])^2)
                                                  ) -
                                             tab_1A$bnGAS_noise_comp[index] 
   
@@ -224,14 +232,14 @@ for(index in 1:nrow(tab_1A)){
   
   tab_1A$cGAS_se[index] <- metab_ggm$se[metab_ggm$SNP == snp]
   
-  tab_1A$cGAS_p[index] <- metab_ggm$chi2[metab_ggm$SNP == snp] / lambda_ggm[trait]
+  tab_1A$cGAS_p[index] <- metab_ggm$Pval[metab_ggm$SNP == snp]
   
-  tab_1A$cGAS_p[index] <- pchisq(tab_1A$cGAS_p[index], df=1 , lower.tail = FALSE)
+  tab_1A$cGAS_p_GC[index] <- metab_ggm$Pval_GC[metab_ggm$SNP == snp]
   
   tab_1A$cGAS_noise_comp[index]  <- log10((tab_1A$uGAS_se[index]  / tab_1A$cGAS_se[index] )^2)
   
-  tab_1A$cGAS_pleiotropic_comp[index]  <- log10(metab_ggm$chi2[metab_ggm$SNP == snp] / lambda_ggm[trait] 
-                                                 / ((metab_u$Z[metab_u$SNP == snp])^2/lambda_ugas[trait])
+  tab_1A$cGAS_pleiotropic_comp[index]  <- log10(metab_ggm$chi2[metab_ggm$SNP == snp] 
+                                                 / ((metab_u$Z[metab_u$SNP == snp])^2)
   ) -
     tab_1A$cGAS_noise_comp[index] 
   
@@ -241,46 +249,10 @@ for(index in 1:nrow(tab_1A)){
 tab_1A[,c('bnGAS_noise_comp','bnGAS_pleiotropic_comp','cGAS_noise_comp','cGAS_pleiotropic_comp')]
 
 
-"write.table(tab1, 
+write.table(tab_1A, 
   quote = FALSE,
   row.names = FALSE,
   sep = '\t',
 # dec = ',',
   file = 'results/Suppl_table_1A.csv'
-)"
-
-
-"# Load lambdas GC for uGWAS
-lambda_ugas <- read.table(
-  'data/uGWAS_gc_lambda.txt', 
-  head = TRUE, 
-  stringsAsFactors = FALSE,
-  row.names = 1
-  )
-
-
-# Load lambdas GC for GGM GWAS
-
-lambda_ggm <- read.table(
-  'data/GGM_cGWAS_gc_lambda.txt', 
-  stringsAsFactors = FALSE,
-  head = TRUE,
-  row.names = 1
-  )
-
-lambda_ggm <- lambda_ggm[traits,]
-
-names(lambda_ggm) <- traits
-
-# Load lambdas GC for BN GWAS
-
-lambda_bn <- read.table(
-  'data/BN_cGWAS_gc_lambda.txt', 
-  stringsAsFactors = FALSE,
-  head = TRUE,
-  row.names = 1
-  )
-
-lambda_bn <- lambda_bn[traits,]
-
-names(lambda_bn) <- traits"
+)
