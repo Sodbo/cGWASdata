@@ -236,6 +236,8 @@ for(index in 1:nrow(tab_1A)){
                                                  ) -
                                             tab_1A$bnGAS_noise_comp[index] 
   
+  tab_1A$bd_cvrts[index] <- metab_bn$Covariates[metab_bn$SNP == snp]
+  
   metab_file_ggm <- paste0('results/GGM/',trait,'.txt')
   
   metab_ggm <- read.table(
@@ -259,6 +261,10 @@ for(index in 1:nrow(tab_1A)){
   ) -
     tab_1A$cGAS_noise_comp[index]
   
+  tab_1A$c_cvrts[index] <- metab_ggm$Covariates[metab_ggm$SNP == snp]
+  
+  # Find min uGWAS P and trait
+  
   snp_u_p <- system(paste0('grep -w ', snp, ' data/uGWAS_snps_from_paper/*'),intern = TRUE)
   
   snp_u_p <- data.frame(matrix(unlist(sapply(snp_u_p,strsplit,split='\t')),byrow=TRUE,nrow=length(snp_u_p)), stringsAsFactors = FALSE)
@@ -277,9 +283,59 @@ for(index in 1:nrow(tab_1A)){
   
   snp_u_p <- snp_u_p[which.min(snp_u_p$P),,drop=FALSE]
   
-  tab_1A$minup_GC[index] <- pchisq(snp_u_p$Z^2/lambda_ugas[trait],df=1,lower.tail = FALSE)
+  tab_1A$minup_GC[index] <- pchisq(snp_u_p$Z^2/lambda_ugas[snp_u_p$trait],df=1,lower.tail = FALSE)
     
   tab_1A$minup_t[index] <- snp_u_p$trait 
+  
+  # Find min bnGWAS P and trait
+  
+  snp_bn_p <- system(paste0('grep -w ', snp, ' results/BN/*'),intern = TRUE)
+  
+  snp_bn_p <- data.frame(matrix(unlist(sapply(snp_bn_p,strsplit,split='\t')),byrow=TRUE,nrow=length(snp_bn_p)), stringsAsFactors = FALSE)
+  
+  colnames(snp_bn_p) <- c('trait','b','se','Chi2','P')
+  
+  snp_bn_p$P <- as.numeric(snp_bn_p$P)
+  
+  snp_bn_p$Chi2 <- as.numeric(snp_bn_p$Chi2)
+  
+  snp_bn_p$trait <- sub('results/BN/','', snp_bn_p$trait) 
+  
+  snp_bn_p$trait <- sub(paste0('.txt:',snp),'', snp_bn_p$trait)
+  
+  snp_bn_p <- snp_bn_p[snp_bn_p$trait %in% traits,]
+  
+  snp_bn_p <- snp_bn_p[which.min(snp_bn_p$P),,drop=FALSE]
+  
+  tab_1A$minbdp_GC[index] <- pchisq(snp_bn_p$Chi2/lambda_bn[snp_bn_p$trait],df=1,lower.tail = FALSE)
+  
+  tab_1A$minbdp_t[index] <- snp_bn_p$trait
+  
+  # Find min cGWAS P and trait
+  
+  snp_ggm_p <- system(paste0('grep -w ', snp, ' results/GGM/*'),intern = TRUE)
+  
+  snp_ggm_p <- data.frame(matrix(unlist(sapply(snp_ggm_p,strsplit,split='\t')),byrow=TRUE,nrow=length(snp_ggm_p)), stringsAsFactors = FALSE)
+  
+  colnames(snp_ggm_p) <- c('trait','b','se','Chi2','P')
+  
+  snp_ggm_p$P <- as.numeric(snp_ggm_p$P)
+  
+  snp_ggm_p$Chi2 <- as.numeric(snp_ggm_p$Chi2)
+  
+  snp_ggm_p$trait <- sub('results/GGM/','', snp_ggm_p$trait) 
+  
+  snp_ggm_p$trait <- sub(paste0('.txt:',snp),'', snp_ggm_p$trait)
+  
+  snp_ggm_p <- snp_ggm_p[snp_ggm_p$trait %in% traits,]
+  
+  snp_ggm_p <- snp_ggm_p[which.min(snp_ggm_p$P),,drop=FALSE]
+  
+  tab_1A$mincp_GC[index] <- pchisq(snp_ggm_p$Chi2/lambda_ggm[snp_ggm_p$trait],df=1,lower.tail = FALSE)
+  
+  tab_1A$mincp_t[index] <- snp_ggm_p$trait 
+  
+  tab_1A$c_cvrts[index] <- snp_ggm_p[ncol(snp_ggm_p)]
   
 }
 
