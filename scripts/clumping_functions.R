@@ -30,7 +30,7 @@ function_for_making_full_table_without_gcv <- function(path_sumstats, snp_col, b
 				Chromosome=snp_info[index,"chr"]
 				Position=snp_info[index,"pos"]
 				Zx=cbind(Zx,Chromosome,Position)
-				Zx=cbind(Zx,trait)
+				Zx$trait <- trait
 							
 				snps=Zx[,"SNP"]
 				rownames(Zx)=snps
