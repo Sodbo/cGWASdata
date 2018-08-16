@@ -44,35 +44,15 @@ source('scripts/clumping_functions.R')
 
 # Create locus table for uGAS
 
-locus_table_ugas <- function_for_making_full_table_without_gcv('data/uGWAS/',
+locus_table_bngas <- function_for_making_full_table_without_gcv('results/BN/',
                                                           'SNP',
-                                                          'beta',
+                                                          'b',
                                                           'se',
-                                                          'P',
+                                                          'Pval_GC',
                                                           traits, 
                                                           snp_info, 
                                                           thr=5e-8/151, 
                                                           delta = 5e5)
-
-locus_table_ugas <- function_for_shlop_24_10_2013(
-  locus_table_ugas,
-  p_value="P-value",
-  pos="Position",
-  snp="SNP",
-  delta=5e5,
-  chr="Chromosome")
-
-# Create locus table for bnGAS
-
-locus_table_bngas <- function_for_making_full_table_without_gcv('results/BN/', 
-                                                               'SNP',
-                                                               'b',
-                                                               'se',
-                                                               'Pval_GC',
-                                                               traits, 
-                                                               snp_info, 
-                                                               thr=5e-8/151, 
-                                                               delta = 5e5)
 
 locus_table_bngas <- function_for_shlop_24_10_2013(
   locus_table_bngas,
@@ -82,7 +62,27 @@ locus_table_bngas <- function_for_shlop_24_10_2013(
   delta=5e5,
   chr="Chromosome")
 
-tab_1A <- rbind(locus_table_ugas, locus_table_bngas)
+# Create locus table for bnGAS
+
+locus_table_cgas <- function_for_making_full_table_without_gcv('results/GGM/', 
+                                                               'SNP',
+                                                               'b',
+                                                               'se',
+                                                               'Pval_GC',
+                                                               traits, 
+                                                               snp_info, 
+                                                               thr=5e-8/151, 
+                                                               delta = 5e5)
+
+locus_table_cgas <- function_for_shlop_24_10_2013(
+  locus_table_cgas,
+  p_value="P-value",
+  pos="Position",
+  snp="SNP",
+  delta=5e5,
+  chr="Chromosome")
+
+tab_1A <- rbind(locus_table_bngas, locus_table_cgas)
 
 tab_1A <- tab_1A[order(tab_1A$Chromosome, tab_1A$Position),]
 
@@ -94,7 +94,7 @@ tab_1A <- tab_1A[,c('SNP','trait','Chromosome','Position')]
 
 # Remove locus on chromosome 2, See supplementary Note 2 for the fetails
 
-tab_1A <- tab_1A[-c(3:4),]
+tab_1A <- tab_1A[-c(2),]
 
 tab_1A$A1 <- NA
 tab_1A$A2 <- NA
@@ -372,7 +372,7 @@ for(locus in unique(tab_1A$locus)) {
 
 data.table::fwrite(tab_1A,
   sep = '\t',
-  file = 'results/Suppl_table_1A.tsv'
+  file = 'results/Suppl_table_1B.tsv'
 )
 
 # The average ratio of the maximum test statistic between BN-cGAS and uGAS
