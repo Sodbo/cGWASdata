@@ -93,14 +93,10 @@ tab_1A$cGAS_p_GC <- NA
 tab_1A$cGAS_noise_comp  <- NA
 tab_1A$cGAS_pleiotropic_comp <- NA
 
-tab_1A$minup_GC  <- NA
-tab_1A$minup_t  <- NA
-tab_1A$mincp_GC  <- NA
-tab_1A$mincp_t  <- NA
-tab_1A$uChi2 <- NA
-tab_1A$cChi2 <- NA
+tab_1A$MAX_T2_U <- NA
+tab_1A$MAX_T2_C <- NA
 
-tab_1A$Ratio_GGMChi2_uChi2	<- NA
+tab_1A$N_c_cvrts <- NA
 tab_1A$c_cvrts <- NA
 
 
@@ -211,9 +207,7 @@ for(index in 1:nrow(tab_1A)){
   
   snp_u_p <- snp_u_p[which.min(snp_u_p$P),,drop=FALSE]
   
-  tab_1A$minup_GC[index] <- pchisq(snp_u_p$Z^2/lambda_ugas[snp_u_p$trait],df=1,lower.tail = FALSE)
-    
-  tab_1A$minup_t[index] <- snp_u_p$trait
+  tab_1A$MAX_T2_U[index] <- snp_u_p$Z^2 / lambda_ugas[snp_u_p$trait]
   
   # Find min cGWAS P and trait
   
@@ -235,15 +229,9 @@ for(index in 1:nrow(tab_1A)){
   
   snp_ggm_p <- snp_ggm_p[which.min(snp_ggm_p$P),,drop=FALSE]
   
-  #tab_1A$mincp_GC[index] <- pchisq(snp_ggm_p$Chi2/lambda_ggm[snp_ggm_p$trait],df=1,lower.tail = FALSE)
-  
-  #tab_1A$mincp_t[index] <- snp_ggm_p$trait 
+  tab_1A$MAX_T2_C[index] <- snp_ggm_p$Chi2/lambda_ggm[snp_ggm_p$trait]
   
   tab_1A$c_cvrts[index] <- snp_ggm_p[ncol(snp_ggm_p)]
-  
-  #tab_1A$uChi2[index] <- qchisq(tab_1A$minup_GC[index], df=1, lower.tail=FALSE)
-  
-  #tab_1A$cChi2[index] <- qchisq(tab_1A$mincp_GC[index], df=1, lower.tail=FALSE)
   
 }
 
@@ -252,6 +240,18 @@ tab_1A$locus <- 1
 for(index in 2:nrow(tab_1A)){
   
    ifelse(tab_1A$Chromosome[index-1]==tab_1A$Chromosome[index] & abs(tab_1A$Position[index-1] - tab_1A$Position[index])<5e5, tab_1A$locus[index] <- tab_1A$locus[index-1], tab_1A$locus[index] <- tab_1A$locus[index-1]+1)
+}
+
+for(locus in unique(tab_1A$locus)) {
+  
+  if(sum(tab_1A$locus==locus)==2){
+    
+    tab_1A[tab_1A$locus==locus,c('MAX_T2_U','MAX_T2_C')][1,] <- pmax(tab_1A[tab_1A$locus==locus,c('MAX_T2_U','MAX_T2_C')][1,],tab_1A[tab_1A$locus==locus,c('MAX_T2_U','MAX_T2_C')][2,])
+    
+    tab_1A[tab_1A$locus==locus,c('MAX_T2_U','MAX_T2_C')][2,] <- NA
+    
+  }
+  
 }
 
 tab_1A <- tab_1A[order(tab_1A$Chromosome,tab_1A$Position,tab_1A$trait),]
