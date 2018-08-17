@@ -391,9 +391,6 @@ mean(tab_1A$cGAS_pleiotropic_comp - tab_1A$bnGAS_pleiotropic_comp)
 
 print(wilcox.test(tab_1A$cGAS_pleiotropic_comp - tab_1A$bnGAS_pleiotropic_comp)$p.value)
 
-# The average ratio of the maximum test statistic between BN-cGAS and uGAS
-print(mean(tab_1A$Ratio_bdChi2_uChi2,na.rm = TRUE))
-
 # For how many GGM-cGAS SNP-trait pairs was the pleiotropic component positive?
 
 sum(tab_1A$cGAS_pleiotropic_comp>0)
@@ -401,3 +398,7 @@ sum(tab_1A$cGAS_pleiotropic_comp>0)
 # The average differences between GGM-cGAS and BN-cGAS Chi^2
 
 mean(tab_1A$bdChi2 - tab_1A$cChi2, na.rm = TRUE) / mean(tab_1A$cChi2, na.rm = TRUE)
+
+# Wil-Coxon P-value of differences between GGM-cGAS and BN-cGAS Chi^2
+
+print(wilcox.test(tab_1A$bdChi2 - tab_1A$cChi2)$p.value)
