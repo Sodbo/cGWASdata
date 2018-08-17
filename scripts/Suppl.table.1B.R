@@ -92,10 +92,6 @@ tab_1A <- tab_1A[!duplicated(tab_1A$code),]
 
 tab_1A <- tab_1A[,c('SNP','trait','Chromosome','Position')]
 
-# Remove locus on chromosome 2, See supplementary Note 2 for the fetails
-
-tab_1A <- tab_1A[-c(2),]
-
 tab_1A$A1 <- NA
 tab_1A$A2 <- NA
 tab_1A$freq <- NA
@@ -375,8 +371,33 @@ data.table::fwrite(tab_1A,
   file = 'results/Suppl_table_1B.tsv'
 )
 
+# Remove locus on chromosome 2, See supplementary Note 2 for the fetails
+
+tab_1A <- tab_1A[-c(2,14),]
+
+# Differences between cGAS and bnGAS noise components
+
+mean(tab_1A$cGAS_noise_comp - tab_1A$bnGAS_noise_comp)
+
+# Wil-Coxon P-value of differences between cGAS and bnGAS noise components
+
+print(wilcox.test(tab_1A$cGAS_noise_comp - tab_1A$bnGAS_noise_comp)$p.value)
+
+# Differences between cGAS and bnGAS “pleiotropic” components
+
+mean(tab_1A$cGAS_pleiotropic_comp - tab_1A$bnGAS_pleiotropic_comp)
+
+# Wil-Coxon P-value of differences between cGAS and bnGAS “pleiotropic” components
+
+print(wilcox.test(tab_1A$cGAS_pleiotropic_comp - tab_1A$bnGAS_pleiotropic_comp)$p.value)
+
 # The average ratio of the maximum test statistic between BN-cGAS and uGAS
 print(mean(tab_1A$Ratio_bdChi2_uChi2,na.rm = TRUE))
 
-# A paired-sample Wilcoxon test
-print(wilcox.test(tab_1A$uChi2-tab_1A$bdChi2)$p.value)
+# For how many GGM-cGAS SNP-trait pairs was the pleiotropic component positive?
+
+sum(tab_1A$cGAS_pleiotropic_comp>0)
+
+# The average differences between GGM-cGAS and BN-cGAS Chi^2
+
+mean(tab_1A$bdChi2 - tab_1A$cChi2, na.rm = TRUE) / mean(tab_1A$cChi2, na.rm = TRUE)
