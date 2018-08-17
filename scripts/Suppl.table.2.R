@@ -233,8 +233,6 @@ for(index in 1:nrow(tab_1A)){
   
   tab_1A$MAX_T2_C[index] <- snp_ggm_p$Chi2/lambda_ggm[snp_ggm_p$trait]
   
-  tab_1A$c_cvrts[index] <- snp_ggm_p[ncol(snp_ggm_p)]
-  
 }
 
 tab_1A$locus <- 1

@@ -130,7 +130,9 @@ tab_1A$bdChi2 <- NA
 tab_1A$cChi2 <- NA
 tab_1A$Ratio_bdChi2_uChi2 <- NA	
 tab_1A$Ratio_GGMChi2_uChi2	<- NA
+tab_1A$N_bd_cvrts <- NA
 tab_1A$bd_cvrts <- NA
+tab_1A$N_c_cvrts <- NA
 tab_1A$c_cvrts <- NA
 
 
@@ -234,6 +236,8 @@ for(index in 1:nrow(tab_1A)){
   
   tab_1A$bd_cvrts[index] <- metab_bn$Covariates[metab_bn$SNP == snp]
   
+  tab_1A$N_bd_cvrts[index] <- length(unlist(strsplit(unlist(tab_1A$bd_cvrts[index]),split = ';')))
+  
   metab_file_ggm <- paste0('results/GGM/',trait,'.txt')
   
   metab_ggm <- read.table(
@@ -258,6 +262,8 @@ for(index in 1:nrow(tab_1A)){
     tab_1A$cGAS_noise_comp[index]
   
   tab_1A$c_cvrts[index] <- metab_ggm$Covariates[metab_ggm$SNP == snp]
+  
+  tab_1A$N_c_cvrts[index] <- length(unlist(strsplit(unlist(tab_1A$c_cvrts[index]),split = ';')))
   
   # Find min uGWAS P and trait
   
@@ -330,8 +336,6 @@ for(index in 1:nrow(tab_1A)){
   tab_1A$mincp_GC[index] <- pchisq(snp_ggm_p$Chi2/lambda_ggm[snp_ggm_p$trait],df=1,lower.tail = FALSE)
   
   tab_1A$mincp_t[index] <- snp_ggm_p$trait 
-  
-  tab_1A$c_cvrts[index] <- snp_ggm_p[ncol(snp_ggm_p)]
   
   tab_1A$Noise_component_diffrence[index] <- tab_1A$cGAS_noise_comp[index] - tab_1A$bnGAS_noise_comp[index]
   
