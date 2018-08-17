@@ -18,12 +18,14 @@ echo "Creating Figure 2"
 echo "Running Figure_2.R"
 Rscript code/Figure_2.R
 
-echo "Creating Supplementary Table 1"
-echo "Running Suppl.table.1.R"
-Rscript code/Suppl.table.1.R
+echo "Creating Supplementary Table 1A"
+echo "Running Suppl.table.1A.R"
+Rscript code/Suppl.table.1A.R
+
+echo "Creating Supplementary Table 1B"
+echo "Running Suppl.table.1B.R"
+Rscript code/Suppl.table.1B.R
 
 echo "Creating Supplementary Table 2"
 echo "Running Suppl.table.2.R"
 Rscript code/Suppl.table.2.R
-
-
