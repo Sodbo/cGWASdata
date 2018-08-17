@@ -187,6 +187,8 @@ for(index in 1:nrow(tab_1A)){
   
   tab_1A$c_cvrts[index] <- metab_ggm$Covariates[metab_ggm$SNP == snp]
   
+  tab_1A$N_c_cvrts[index] <- length(unlist(strsplit(unlist(tab_1A$c_cvrts[index]),split = ';')))
+  
   # Find min uGWAS P and trait
   
   snp_u_p <- system(paste0('grep -w ', snp, ' data/uGWAS_snps_from_paper/*'),intern = TRUE)
