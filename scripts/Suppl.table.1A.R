@@ -92,10 +92,6 @@ tab_1A <- tab_1A[!duplicated(tab_1A$code),]
 
 tab_1A <- tab_1A[,c('SNP','trait','Chromosome','Position')]
 
-# Remove locus on chromosome 2, See supplementary Note 2 for the fetails
-
-tab_1A <- tab_1A[-c(3:4),]
-
 tab_1A$A1 <- NA
 tab_1A$A2 <- NA
 tab_1A$freq <- NA
@@ -374,6 +370,10 @@ data.table::fwrite(tab_1A,
   sep = '\t',
   file = 'results/Suppl_table_1A.tsv'
 )
+
+# Remove locus on chromosome 2, See supplementary Note 2 for the fetails
+
+tab_1A <- tab_1A[-c(3:4),]
 
 # The average ratio of the maximum test statistic between BN-cGAS and uGAS
 print(mean(tab_1A$Ratio_bdChi2_uChi2,na.rm = TRUE))
