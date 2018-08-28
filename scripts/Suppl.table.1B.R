@@ -401,7 +401,7 @@ sum(tab_1A$cGAS_pleiotropic_comp>0)
 
 # The average differences between GGM-cGAS and BN-cGAS Chi^2
 
-mean(tab_1A$bdChi2 - tab_1A$cChi2, na.rm = TRUE) / mean(tab_1A$cChi2, na.rm = TRUE)
+(mean(tab_1A$bdChi2, na.rm=TRUE) - mean(tab_1A$cChi2, na.rm = TRUE)) / mean(tab_1A$bdChi2, na.rm = TRUE)
 
 # Wil-Coxon P-value of differences between GGM-cGAS and BN-cGAS Chi^2
 
