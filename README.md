@@ -1,38 +1,44 @@
-# cGWASdata
+# A network-based conditional genetic association analysis of the human metabolome
 
-The repository stores all code and data necessary for reproducing all results of cGWAS paper (doi:https://doi.org/10.1101/096982).
+The repository stores all code and data necessary for reproducing all results of cGAS paper 
+(doi:https://doi.org/10.1101/096982).
 
 ## Data description
 
-The results of the paper were obtained from analysis of GWAS summary data (for more details see paper).
-"Data" folder stores GWAS summary data, SNP information file and correlation matrices. "Scripts" folder stores R functions for applying cGWAS to summary gwas data. 
+The results of the paper were obtained from analysis of GWAS summary data 
+(for more details see paper). **Data** folder stores GWAS summary data, 
+SNP information file and matrices with pairwise correlation coefficients 
+between metabolite's measurements. **Code** folder stores R functions for 
+applying cGWAS to summary gwas data. 
 
 ### GWAS summary data
 
 All gwas stored in text files with headings:
 
-```
-SNP	beta	se	Z	P
-rs11224105	0.176564410328865	0.0338255949318409	5.21984641170821	1.79071572930154e-07
-```
-
-where SNP is the marker name; beta - effect size;  se - standard error of the beta; Z - Z-value (beta/se); P - P-value.
-Sample size should be assumed as N=1785.
+|SNP|beta|se |Z  |P  |
+|---|----|---|---|---|
+|rs11224105|0.17656|0.03382|5.21984|1.79e-07|
 
 
-Information about alleles, frequencies, imputation quality, physical position etc could be found in "SNP_information.txt.zip".
-Heading:
-```
-chr	SNP	pos	A1	A2	freq	R2_impute_info	hw	varg_1785
-1	rs11804171	713682	A	T	0.948294173319688	0.911636	0.0944081893439549	0.0947969497504853
-1	rs2977670	713754	G	C	0.0517239938021306	0.91039	0.0967611574676493	0.0947078794876727
-```
-where chr is chromosome; SNP - SNP name; pos - position (r37 assembly); A1 - effective allele; A2 - reference allele; freq - effective allele frequency; R2_imputie_info - imputation quality; hw - Hardy-Weinberg equilibrium P-value; varg_1785 - exact variance of the SNP (needed for calculation of cGWAS).
+where **SNP** is the marker name; **beta** - effect size;  **se** - standard error of the beta; 
+<br> **Z** is $Z_{value}=\frac{beta}{se}$; **P** is P-value of association.
+<br>Sample size is N=1785.
+
+
+Information about alleles, frequencies, imputation quality, physical position etc could be found in **SNP_information.txt.gz**.
+<br> Heading of the **SNP_information.txt.gz** file:
+
+|chr|SNP|pos|A1|A2|freq|R2_impute_info|hw|varg_1785|
+|---|---|---|--|--|----|--------------|--|---------|
+|1|rs11804171|713682|A|T|0.94829|0.911636|0.09440|0.09479|
+|1|rs2977670|713754|G|C|0.05172|0.91039|0.09676|0.09470|
+
+where **chr** is chromosome; **SNP** - SNP name; **pos** - position (r37 assembly); **A1** - effective allele; **A2** - reference allele; **freq** - effective allele frequency; **R2_imputie_info** - imputation quality; **hw** - Hardy-Weinberg equilibrium P-value; **varg_1785** - exact variance of the SNP (needed for calculation of cGWAS).
 
 ### Folders
 
 - uGWAS:
-Stores files with univariate GWAS results filtered by P-value<1e-6. Genomic control (GC) correction wasn't applied.
+Stores files with univariate GWAS results obtained by OmicABEL (doi:10.12688/f1000research.4867.1), filtered by P-value<1e-6. Genomic control (GC) correction wasn't applied.
 
 - GGM-cGWAS:
 Stores GGM-cGWAS results filtered by P-value<1e-6. GC correction was applied. GC Lambdas are stored in "GGM_cGWAS_gc_lambda.txt" file.
@@ -41,10 +47,7 @@ Stores GGM-cGWAS results filtered by P-value<1e-6. GC correction was applied. GC
 Stores BN-cGWAS results filtered by P-value<1e-6. GC correction was applied. GC Lambdas are stored in "BN_cGWAS_gc_lambda.txt" file.
 
 - uGWAS_snps_from_paper:
-Stores uGWAS results for all SNPs mentioned in the paper. GC() correction wasn't applied.
-
-- RData: 
-Stores the same results for GGM-cGWAS, BN-cGWAS, uGWAS but in RData format suitable for exact_cGWAS_functions.R cGWAS function.
+Stores uGWAS results for all SNPs mentioned in the paper obtained by "lm" function in R. GC correction wasn't applied.
 
 
 ### Matrices
@@ -63,11 +66,28 @@ Scripts are located in "scripts" folder.
 
 - exact_cGWAS_functions.R: the main function for calculation of cGWAS using uGWAS results and correlation matrices. All descriptions are in file. 
 
-- figure2_corrplot.R: in case you want to produce the same beautiful pictures as Figure 2, feel free to use some code of this script ;)
+- main_BN.R: script runs the cGAS analysis where covariates where selected based on biochemical distances between metabolites
+
+- main_GGM.R: script runs the cGAS analysis where covariates where selected based on partial correlations between metabolites.
+
+- Suppl.table.1A.R: script that creates Supplementary Table 1A, that compares results of uGAS and BN-cGAS
+
+- Suppl.table.1B.R: script that creates Supplementary Table 1B, that compares results of BN-cGAS and GGM-cGAS
+
+- Suppl.table.2.R: script that creates Supplementary Table 2, where all loci found by GGM-cGAS and uGAS are collected
+
+- Figure_1.R: scripts reproduce Figure 1 presented in the paper
+
+- Figure_2.R: scripts reproduce Figure 2 presented in the paper
+
+- clumping_functions.R: fuinctions for performing clumping of GWAS results
+
+- utilities.R: utilities function that are used by exact_cGWAS_functions
+
 
 ### Citation
 
 If you use the exact_cGWAS_functions.R and the other procedures, respectively,
 please cite:
 
-Tsepilov, Y. A., Sharapov, S. Z., Zaytseva, O. O., Krumsiek, J., Prehn, C., Adamski, J., … Aulchenko, Y. S. (2017). A network-based conditional genetic association analysis of the human metabolome. Submitted
+Tsepilov, Y. A., Sharapov, S. Z., Zaytseva, O. O., Krumsiek, J., Prehn, C., Adamski, J., … Aulchenko, Y. S. (2018). A network-based conditional genetic association analysis of the human metabolome. Submitted
